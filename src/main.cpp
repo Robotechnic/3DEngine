@@ -1,13 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-// #include "shapes/cube.h"
-#include "math/vector3.h"
+#include "shapes/cube.hpp"
+#include "math/vector3.hpp"
 
 #define CUBES 1
 
 int main() {
-	Vector3f size(100, 100, 100);
-	std::cout << "size: " << size << std::endl;
 
 	// sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
 	// window.setFramerateLimit(60);

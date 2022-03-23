@@ -1,4 +1,4 @@
-#include "shape.h"
+#include "shape.hpp"
 
 Shape::Shape(Vector3f size, Vector3f pos) : size(size), pos(pos), rotation(0, 0, 0) {}
 Shape::Shape(const Shape& other) : size(other.size), pos(other.pos), rotation(other.rotation) {}

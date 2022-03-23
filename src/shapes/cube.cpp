@@ -1,4 +1,4 @@
-#include "cube.h"
+#include "cube.hpp"
 
 // store all cube vertex in triangle shape
 const Vector3f vertex_pos[] {
