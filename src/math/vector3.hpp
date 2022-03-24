@@ -2,12 +2,14 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <ostream>
+#include <stdexcept>
 #include <cmath>
 #include "matrix4.hpp"
 
+class Matrix4;
+
 template <typename T>
 class Vector3 {
-	class Matrix4;
 	public:
 		Vector3(): x(0), y(0), z(0) {};
 		Vector3(T x, T y, T z) : x(x), y(y), z(z) {};
@@ -41,6 +43,30 @@ class Vector3 {
 			return *this;
 		}
 
+		T& operator()(const float coord) {
+			if (coord == 0) {
+				return x;
+			} else if (coord == 1) {
+				return y;
+			} else if (coord == 2) {
+				return z;
+			} else {
+				throw std::out_of_range("coordinate index out of range");
+			}
+		}
+
+		T at(const float coord) const {
+			if (coord == 0) {
+				return x;
+			} else if (coord == 1) {
+				return y;
+			} else if (coord == 2) {
+				return z;
+			} else {
+				throw std::out_of_range("coordinate index out of range");
+			}
+		}
+
 		float dot(const Vector3<T>& other) {
 			return x * other.x + y * other.y + z * other.z;
 		}
@@ -68,18 +94,7 @@ class Vector3 {
 			return Vector3<T>(x / length, y / length, z / length);
 		}
 
-		sf::Vector2f getProjection(Matrix4 projectionMatrix) {
-			sf::Vector2f result;
-			result.x = projectionMatrix(0, 0) * x + projectionMatrix(1, 0) * y + projectionMatrix(2, 0) * z + projectionMatrix(3, 0);
-			result.y = projectionMatrix(0, 1) * x + projectionMatrix(1, 1) * y + projectionMatrix(2, 1) * z + projectionMatrix(3, 1);
-			// result.z = projectionMatrix(0, 2) * x + projectionMatrix(1, 2) * y + projectionMatrix(2, 2) * z + projectionMatrix(3, 2);
-			float w = projectionMatrix(0, 3) * x + projectionMatrix(1, 3) * y + projectionMatrix(2, 3) * z + projectionMatrix(3, 3);
-
-			if (w != 0) {
-				result /= w;
-			}
-			return result;
-		}
+		sf::Vector2f getProjection(Matrix4 projectionMatrix, float width, float height);
 
 		T x, y, z;
 };

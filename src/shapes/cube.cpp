@@ -28,25 +28,38 @@ const Vector3f vertex_pos[] {
 };
 
 Cube::Cube(Vector3f size, Vector3f pos) : 
-	Shape(size, pos)
-	{}
-
-std::vector<Triangle> Cube::getTriangles() const {
-	std::vector<Triangle> vertex;
-	for (int i = 0; i < 36; i += 3) {
-		Triangle t;
-		t.v1 = vertex_pos[i] * size + pos;
-		t.v2 = vertex_pos[i + 1] * size + pos;
-		t.v3 = vertex_pos[i + 2] * size + pos;
-		vertex.push_back(t);
-	}
-	return vertex;
+	Shape(size, pos),
+	color(sf::Color::White)
+{
+	this->init();
 }
 
-std::vector<sf::Color> Cube::getColors() const {
-	std::vector<sf::Color> color;
-	for (int i = 0; i < 36; i++) {
-		color.push_back(sf::Color::White);
+void Cube::init() {
+	for (int i = 0; i < 36; i += 3) {
+		Triangle *t = new Triangle();
+		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
+		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
+		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
+		this->triangles.push_back(t);
 	}
-	return color;
+
+	for (int i = 0; i < 36; i++) {
+		this->colors.push_back(new sf::Color(this->color));
+	}
+	this->updateNeeded = false;
+}
+
+void Cube::update() {
+	if (!this->updateNeeded) return;
+	for (int i = 0; i < 36; i += 3) {
+		Triangle *t = this->triangles[i / 3];
+		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
+		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
+		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
+	}
+
+	for (sf::Color *c : this->colors) {
+		*c = this->color;
+	}
+	this->updateNeeded = false;
 }

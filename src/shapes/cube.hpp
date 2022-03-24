@@ -13,7 +13,9 @@ class Cube : public Shape  {
 	public:
 		Cube(Vector3f size = Vector3f(10, 10, 10), Vector3f pos = Vector3f(0, 0, 0));
 
-		std::vector<Triangle> getTriangles() const;
-		std::vector<sf::Color> getColors() const;
+		void update() override;
+		void init() override;
+	
+		sf::Color color;
 		
 };

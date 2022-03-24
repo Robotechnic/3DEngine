@@ -19,7 +19,8 @@ class Matrix3 {
 		Matrix3& operator-=(const Matrix3& other);
 
 		static Matrix3 identitity();
-
+		static Matrix3 rotation(Vector3f rotation);
+		static Matrix3 rotation(float x, float y, float z);
 
 	private:
 		float values[9];
