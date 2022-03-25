@@ -9,6 +9,23 @@ struct Triangle {
 	Vector3f v1;
 	Vector3f v2;
 	Vector3f v3;
+	Vector3f normal;
+
+	Vector3f at(float index) const {
+		if (index == 0) {
+			return v1;
+		} else if (index == 1) {
+			return v2;
+		} else if (index == 2) {
+			return v3;
+		} else {
+			throw std::runtime_error("Index out of range");
+		}
+	}
+
+	Vector3f getCenter() const {
+		return (v1 + v2 + v3) / 3.0f;
+	}
 };
 
 

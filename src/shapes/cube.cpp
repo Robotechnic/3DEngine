@@ -7,20 +7,20 @@ const Vector3f vertex_pos[] {
 	Vector3f(-1, -1, 1), Vector3f(1, 1, 1), Vector3f(-1, 1, 1),
 
 	// back
-	Vector3f(-1, -1, -1), Vector3f(1, -1, -1), Vector3f(1, 1, -1),
-	Vector3f(-1, -1, -1), Vector3f(1, 1, -1), Vector3f(-1, 1, -1),
+	Vector3f(1, 1, -1), Vector3f(1, -1, -1), Vector3f(-1, -1, -1),
+	Vector3f(-1, 1, -1), Vector3f(1, 1, -1), Vector3f(-1, -1, -1),
 
-	// left
+	// right
 	Vector3f(-1, -1, -1), Vector3f(-1, -1, 1), Vector3f(-1, 1, 1),
 	Vector3f(-1, -1, -1), Vector3f(-1, 1, 1), Vector3f(-1, 1, -1),
 
-	// right
-	Vector3f(1, -1, -1), Vector3f(1, -1, 1), Vector3f(1, 1, 1),
-	Vector3f(1, -1, -1), Vector3f(1, 1, 1), Vector3f(1, 1, -1),
+	// left
+	Vector3f(1, 1, 1), Vector3f(1, -1, 1), Vector3f(1, -1, -1),
+	Vector3f(1, 1, -1), Vector3f(1, 1, 1), Vector3f(1, -1, -1),
 
 	// top
-	Vector3f(-1, 1, -1), Vector3f(1, 1, -1), Vector3f(1, 1, 1),
-	Vector3f(-1, 1, -1), Vector3f(1, 1, 1), Vector3f(-1, 1, 1),
+	Vector3f(1, 1, 1), Vector3f(1, 1, -1), Vector3f(-1, 1, -1),
+	Vector3f(-1, 1, 1), Vector3f(1, 1, 1), Vector3f(-1, 1, -1),
 
 	// bottom
 	Vector3f(-1, -1, -1), Vector3f(1, -1, -1), Vector3f(1, -1, 1),
@@ -40,6 +40,7 @@ void Cube::init() {
 		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
 		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
 		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
+		t->normal = (t->v2 - t->v1).cross(t->v3 - t->v1).normalized();
 		this->triangles.push_back(t);
 	}
 
@@ -56,6 +57,7 @@ void Cube::update() {
 		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
 		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
 		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
+		t->normal = (t->v2 - t->v1).cross(t->v3 - t->v1).normalized();
 	}
 
 	for (sf::Color *c : this->colors) {

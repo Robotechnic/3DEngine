@@ -13,21 +13,32 @@
 class Scene : public sf::Drawable {
 	public:
 		Scene(float width, float height, float fov, float near, float far);
-
-		// void translate(const Vector3<float>& translation);
-		// void rotate(const Vector3<float>& rotation);
+		void setCamera(const Vector3f position, const Vector3f lookat);
 
 		void removeNullTriangles();
 		void update();
+
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 		void addShape(Shape *shape);
 
 		bool wireframe;
+		bool normals;
+		bool faces;
 	
 	private:
+		bool isVisible(const Triangle &triangle) const;
+		sf::VertexArray drawFaces() const;
+		sf::VertexArray drawWireframe() const;
+		sf::VertexArray drawNormals() const;
+
+		sf::Vector2f getProjection(Vector3f vector) const;
+
 		float width, height;
 		Matrix4 projectionMatrix;
+
+		Vector3f cameraPosition, cameraLookat;
+
 		std::vector <Triangle *> triangles;
 		std::vector <sf::Color *> colors;
 

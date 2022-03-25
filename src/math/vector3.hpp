@@ -43,6 +43,34 @@ class Vector3 {
 			return *this;
 		}
 
+		Vector3<T>& operator+=(const T& other) {
+			x += other;
+			y += other;
+			z += other;
+			return *this;
+		}
+
+		Vector3<T>& operator-=(const T& other) {
+			x -= other;
+			y -= other;
+			z -= other;
+			return *this;
+		}
+
+		Vector3<T>& operator*=(const T& other) {
+			x *= other;
+			y *= other;
+			z *= other;
+			return *this;
+		}
+
+		Vector3<T>& operator/=(const T& other) {
+			x /= other;
+			y /= other;
+			z /= other;
+			return *this;
+		}
+
 		T& operator()(const float coord) {
 			if (coord == 0) {
 				return x;
@@ -67,18 +95,18 @@ class Vector3 {
 			}
 		}
 
-		float dot(const Vector3<T>& other) {
+		float dot(const Vector3<T>& other) const {
 			return x * other.x + y * other.y + z * other.z;
 		}
 		Vector3<T> cross(const Vector3<T>& other) {
 			return Vector3<T>(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
 		}
 
-		float sqareLength() {
+		float sqareLength() const {
 			return this->dot(*this);
 		}
 		
-		float length() {
+		float length() const {
 			return sqrt(this->sqareLength());
 		}
 
@@ -104,6 +132,10 @@ Vector3<T> operator+(const Vector3<T>& left, const Vector3<T>& right) {
 	return Vector3<T>(left.x + right.x, left.y + right.y, left.z + right.z);
 }
 template <typename T>
+Vector3<T> operator+(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x + right, left.y + right, left.z + right);
+}
+template <typename T>
 Vector3<T> operator-(const Vector3<T>& left, const Vector3<T>& right) {
 	return Vector3<T>(left.x - right.x, left.y - right.y, left.z - right.z);
 }
@@ -112,13 +144,27 @@ Vector3<T> operator-(const Vector3<T>& right) {
 	return Vector3<T>(-right.x, -right.y, -right.z);
 }
 template <typename T>
+Vector3<T> operator-(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x - right, left.y - right, left.z - right);
+}
+template <typename T>
 Vector3<T> operator*(const Vector3<T>& left, const Vector3<T>& right) {
 	return Vector3<T>(left.x * right.x, left.y * right.y, left.z * right.z);
+}
+template <typename T>
+Vector3<T> operator*(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x * right, left.y * right, left.z * right);
 }
 template <typename T>
 Vector3<T> operator/(const Vector3<T>& left, const Vector3<T>& right) {
 	return Vector3<T>(left.x / right.x, left.y / right.y, left.z / right.z);
 }
+template <typename T>
+Vector3<T> operator/(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x / right, left.y / right, left.z / right);
+}
+
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Vector3<T>& vec) {
 	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";

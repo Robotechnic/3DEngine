@@ -11,21 +11,25 @@
 int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
 	Scene scene(500, 500, 90, 1, 1000);
+	scene.wireframe = true;
+	scene.normals = true;
+	scene.faces = false;
+	scene.setCamera(Vector3f(0, 0, -100), Vector3f(0, 0, 0));
+
 	window.setFramerateLimit(60);
-	Cube cubes[4] = {
-		Cube(Vector3f(20,20,20)),
-		Cube(Vector3f(20,20,20)),
-		Cube(Vector3f(20,20,20)),
-		Cube(Vector3f(20,20,20))
+	std::vector<Cube> cubes(CUBES);
+
+	Vector3f cubePos[4] = {
+		Vector3f(0,0,0),
+		Vector3f(50,0,0),
+		Vector3f(0,50,0),
+		Vector3f(-50,0,0)
 	};
 
-	cubes[0].setPosition(0,0,-100);
-	cubes[1].setPosition(50,0,-100);
-	cubes[2].setPosition(0,50,-100);
-	cubes[3].setPosition(-50,0,-100);
-
 	for (int i = 0; i < CUBES; i++) {
-		scene.addShape(&cubes[i]);
+		cubes.at(i).setSize(20,20,20);
+		cubes.at(i).setPosition(cubePos[i]);
+		scene.addShape(&cubes.at(i)); 
 	}
 
 	while (window.isOpen()) {
@@ -37,44 +41,45 @@ int main() {
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,-1,0);
+				cubes[i].moove(0,1,0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,1,0);
+				cubes[i].moove(0,-1,0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(-1,0,0);
+				cubes[i].moove(1,0,0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(1,0,0);
+				cubes[i].moove(-1,0,0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,0,1);
+				cubes[i].moove(0,0,-1);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,0,-1);
+				cubes[i].moove(0,0,1);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, M_PI/60, 0);
+				cubes[i].rotate(0, -M_PI/60, 0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, -M_PI/60, 0);
+				cubes[i].rotate(0, M_PI/60, 0);
 			}
 		}
+
 
 		window.clear();
 		scene.update();
