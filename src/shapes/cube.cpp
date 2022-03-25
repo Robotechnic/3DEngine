@@ -36,16 +36,15 @@ Cube::Cube(Vector3f size, Vector3f pos) :
 
 void Cube::init() {
 	for (int i = 0; i < 36; i += 3) {
-		Triangle *t = new Triangle();
-		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
-		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
-		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
-		t->normal = (t->v2 - t->v1).cross(t->v3 - t->v1).normalized();
-		this->triangles.push_back(t);
+		this->triangles.push_back(Triangle({
+			this->rotationMatrix * (vertex_pos[i] * size),
+			this->rotationMatrix * (vertex_pos[i + 1] * size),
+			this->rotationMatrix * (vertex_pos[i + 2] * size),
+		}));
 	}
 
 	for (int i = 0; i < 36; i++) {
-		this->colors.push_back(new sf::Color(this->color));
+		this->colors.push_back(sf::Color(this->color));
 	}
 	this->updateNeeded = false;
 }
@@ -53,15 +52,15 @@ void Cube::init() {
 void Cube::update() {
 	if (!this->updateNeeded) return;
 	for (int i = 0; i < 36; i += 3) {
-		Triangle *t = this->triangles[i / 3];
-		t->v1 = this->rotationMatrix * (vertex_pos[i] * size) + pos;
-		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size) + pos;
-		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size) + pos;
-		t->normal = (t->v2 - t->v1).cross(t->v3 - t->v1).normalized();
+		Triangle *t = &this->triangles[i / 3];
+		t->v1 = this->rotationMatrix * (vertex_pos[i] * size);
+		t->v2 = this->rotationMatrix * (vertex_pos[i + 1] * size);
+		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size);
+		t->calculateNormal();
 	}
 
-	for (sf::Color *c : this->colors) {
-		*c = this->color;
+	for (sf::Color c : this->colors) {
+		c = this->color;
 	}
 	this->updateNeeded = false;
 }

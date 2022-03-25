@@ -4,7 +4,6 @@
 #include <ostream>
 #include <stdexcept>
 #include <cmath>
-#include "matrix4.hpp"
 
 class Matrix4;
 
@@ -121,8 +120,6 @@ class Vector3 {
 			float length = this->length();
 			return Vector3<T>(x / length, y / length, z / length);
 		}
-
-		sf::Vector2f getProjection(Matrix4 projectionMatrix, float width, float height);
 
 		T x, y, z;
 };

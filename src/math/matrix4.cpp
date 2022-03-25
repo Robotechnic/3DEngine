@@ -57,7 +57,7 @@ Matrix4 Matrix4::projectionMatrix(float fov, float aspectRatio, float near, floa
 }
 
 
-Matrix4 Matrix4::identitity() {
+Matrix4 Matrix4::identity() {
 	Matrix4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -65,6 +65,62 @@ Matrix4 Matrix4::identitity() {
 		}
 	}
 	return result;
+}
+
+Matrix4 Matrix4::translation(Vector3<float> translation) {
+	Matrix4 matrix;
+	matrix(0, 0) = 1;
+	matrix(1, 1) = 1;
+	matrix(2, 2) = 1;
+	matrix(3, 3) = 1;
+	matrix(0, 3) = translation.x;
+	matrix(1, 3) = translation.y;
+	matrix(2, 3) = translation.z;
+
+	return matrix;
+}
+
+Matrix4 Matrix4::translation(float x, float y, float z) {
+	return Matrix4::translation(Vector3<float>(x, y, z));
+}
+
+Matrix4 Matrix4::rotation(Vector3<float> rotation) {
+	float c1 = cos(rotation.x);
+	float s1 = sin(rotation.x);
+	float c2 = cos(rotation.y);
+	float s2 = sin(rotation.y);
+	float c3 = cos(rotation.z);
+	float s3 = sin(rotation.z);
+
+	// compute the rotation matrix with euler angles
+	
+	Matrix4 MX, MY, MZ;
+	MX(0, 0) = 1;
+	MX(1, 1) = c1;
+	MX(1, 2) = -s1;
+	MX(2, 2) = c1;
+	MX(2, 1) = s1;
+	MX(3, 3) = 1;
+
+	MY(0, 0) = c2;
+	MY(0, 2) = s2;
+	MY(1, 1) = 1;
+	MY(2, 0) = -s2;
+	MY(2, 2) = c2;
+	MY(3, 3) = 1;
+
+	MZ(0, 0) = c3;
+	MZ(0, 1) = -s3;
+	MZ(1, 1) = c3;
+	MZ(1, 0) = s3;
+	MZ(2, 2) = 1;
+	MZ(3, 3) = 1;
+	
+	return MX * MY * MZ;
+}
+
+Matrix4 Matrix4::rotation(float anglex, float angley, float anglez) {
+	return Matrix4::rotation(Vector3f(anglex, angley, anglez));
 }
 
 Matrix4& Matrix4::operator+=(const Matrix4& other) {
@@ -127,6 +183,29 @@ Matrix4 operator*(const Matrix4& left, const Matrix4& right) {
 	}
 	return result;
 }
+
+Vector3f operator*(const Matrix4& left, const Vector3f& right) {
+	float w = 0;
+	Vector3f result;
+
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			result(i) += left.at(i, j) * right.at(j);
+		}
+		result(i) += left.at(i, 3);
+	}
+	for (int i = 0; i < 3; i++) {
+		w += left.at(3, i) * right.at(i);
+	}
+	w += left.at(3, 3);
+
+	if (w != 0) {
+		result /= w;
+	}
+
+	return result;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Matrix4& matrix) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {

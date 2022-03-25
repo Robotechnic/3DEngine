@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cmath>
 #include "math/vector3.hpp"
-#include "math/matrix3.hpp"
 #include "shapes/cube.hpp"
 #include "scene/scene.hpp"
 
@@ -28,8 +27,6 @@ int main() {
 
 	for (int i = 0; i < CUBES; i++) {
 		cubes.at(i).setSize(20,20,20);
-		cubes.at(i).setPosition(cubePos[i]);
-		scene.addShape(&cubes.at(i)); 
 	}
 
 	while (window.isOpen()) {
@@ -40,49 +37,47 @@ int main() {
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,1,0);
-			}
+			scene.cameraPosition.y += 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,-1,0);
-			}
+			scene.cameraPosition.y -= 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(1,0,0);
-			}
+			scene.cameraPosition.x -= 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(-1,0,0);
-			}
+			scene.cameraPosition.x += 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,0,-1);
-			}
+			scene.cameraPosition.z += 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].moove(0,0,1);
-			}
+			scene.cameraPosition.z -= 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, -M_PI/60, 0);
+				cubes[i].rotate(0, M_PI/60, 0);
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, M_PI/60, 0);
+				cubes[i].rotate(0, -M_PI/60, 0);
 			}
 		}
 
 
 		window.clear();
-		scene.update();
+		scene.clear();
+
+		for (int i = 0; i < CUBES; i++) {
+			scene.pushMatrix();
+			scene.translate(cubePos[i]);
+			scene.drawShape(&cubes[i]);
+			scene.popMatrix();
+		}
+
+
+
 		window.draw(scene);
 		window.display();
 	}

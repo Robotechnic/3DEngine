@@ -19,7 +19,11 @@ class Matrix4 {
 		Matrix4& operator-=(const Matrix4& other);
 
 		static Matrix4 projectionMatrix(float fov, float aspectRatio, float near, float far);
-		static Matrix4 identitity();
+		static Matrix4 identity();
+		static Matrix4 translation(Vector3<float> translation);
+		static Matrix4 translation(float x, float y, float z);
+		static Matrix4 rotation(Vector3<float> rotation);
+		static Matrix4 rotation(float anglex, float angley, float anglez);
 
 	private:
 		float values[16];
@@ -28,4 +32,7 @@ class Matrix4 {
 Matrix4 operator+(const Matrix4& left, const Matrix4& right);
 Matrix4 operator-(const Matrix4& left, const Matrix4& right);
 Matrix4 operator*(const Matrix4& left, const Matrix4& right);
+Vector3f operator*(const Matrix4& left, const Vector3f& right);
+
+
 std::ostream& operator<<(std::ostream& stream, const Matrix4& matrix);
