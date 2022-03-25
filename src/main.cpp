@@ -11,9 +11,9 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
 	Scene scene(500, 500, 90, 1, 1000);
 	scene.wireframe = true;
-	scene.normals = true;
+	scene.normals = false;
 	scene.faces = false;
-	scene.setCamera(Vector3f(0, 0, -100), Vector3f(0, 0, 0));
+	scene.setCamera(Vector3f(0, 0, -100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	window.setFramerateLimit(60);
 	std::vector<Cube> cubes(CUBES);
@@ -29,6 +29,8 @@ int main() {
 		cubes.at(i).setSize(20,20,20);
 	}
 
+	float rotation = 0;
+
 	while (window.isOpen()) {
 		sf::Event event;
 		while (window.pollEvent(event)) {
@@ -36,35 +38,8 @@ int main() {
                 window.close();
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-			scene.cameraPosition.y += 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
-			scene.cameraPosition.y -= 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-			scene.cameraPosition.x -= 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-			scene.cameraPosition.x += 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
-			scene.cameraPosition.z += 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-			scene.cameraPosition.z -= 1;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, M_PI/60, 0);
-			}
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-			for (int i = 0; i < CUBES; i++) {
-				cubes[i].rotate(0, -M_PI/60, 0);
-			}
-		}
-
+		scene.setCamera(Vector3f(cos(rotation) * 100, 50, sin(rotation) * 100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+		rotation += 0.01;
 
 		window.clear();
 		scene.clear();

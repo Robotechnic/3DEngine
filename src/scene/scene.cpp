@@ -30,8 +30,9 @@ void Scene::setCamera(const Vector3f pos, const float theta, const float phi, co
 
 void Scene::computeCameraLookAt(){
 	Vector3f direction = this->cameraLookAt - this->cameraPosition;
-	Vector3f right = this->cameraUp.cross(direction).normalized();
-	Vector3f up = direction.cross(right).normalized();
+	direction.normalize();
+	Vector3f right = this->cameraUp.cross(direction);
+	Vector3f up = direction.cross(right);
 	cameraLookAtMatrix = Matrix4::identity();
 	cameraLookAtMatrix.setLine(0, right);
 	cameraLookAtMatrix.setLine(1, up);
@@ -92,7 +93,7 @@ bool Scene::isVisible(const Triangle &triangle) const {
 }
 
 sf::Vector2f Scene::getProjection(Vector3f vector) const {
-	vector -= this->cameraPosition;
+	vector = this->cameraLookAtMatrix * vector;
 	vector = this->projectionMatrix * vector;
 
 	vector.x += 1;
