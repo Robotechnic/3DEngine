@@ -14,7 +14,8 @@
 class Scene : public sf::Drawable {
 	public:
 		Scene(float width, float height, float fov, float near, float far);
-		void setCamera(const Vector3f position, const Vector3f lookat);
+		void setCamera(const Vector3f position, const Vector3f lookat, const Vector3f up);
+		void setCamera(const Vector3f position, const float theta, const float phi, const Vector3f up);
 
 		void popMatrix();
 		void pushMatrix();
@@ -30,19 +31,22 @@ class Scene : public sf::Drawable {
 		bool wireframe;
 		bool normals;
 		bool faces;
-		Vector3f cameraPosition, cameraLookat;
 	
 	private:
 		bool isVisible(const Triangle &triangle) const;
 		sf::VertexArray drawFaces() const;
 		sf::VertexArray drawWireframe() const;
 		sf::VertexArray drawNormals() const;
-
+		
 		sf::Vector2f getProjection(Vector3f vector) const;
+
+		void computeCameraLookAt();
 
 		float width, height;
 		Matrix4 projectionMatrix;
 
+		Vector3f cameraPosition, cameraLookAt, cameraUp;
+		Matrix4 cameraLookAtMatrix;
 
 		std::stack<Matrix4> transformations;
 		Matrix4 worldStateMatrix;

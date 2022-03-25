@@ -14,6 +14,9 @@ class Matrix4 {
 		float& operator()(unsigned line, unsigned column);
 		float at(unsigned line, unsigned column) const;
 		
+		void setLine(unsigned line, Vector3f vector);
+		void setColumn(unsigned column, Vector3f vector);
+
 		Matrix4& operator*=(const Matrix4& other);
 		Matrix4& operator+=(const Matrix4& other);
 		Matrix4& operator-=(const Matrix4& other);

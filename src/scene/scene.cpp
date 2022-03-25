@@ -11,9 +11,36 @@ Scene::Scene(float width, float height, float fov, float near, float far) :
 	this->worldStateMatrix = Matrix4::identity();
 }
 
-void Scene::setCamera(const Vector3f position, const Vector3f lookat) {
+void Scene::setCamera(const Vector3f position, const Vector3f lookat, const Vector3f up) {
 	this->cameraPosition = position;
-	this->cameraLookat = lookat;
+	this->cameraLookAt = lookat;
+	this->cameraUp = up;
+	this->computeCameraLookAt();
+}
+
+void Scene::setCamera(const Vector3f pos, const float theta, const float phi, const Vector3f up) {
+	this->cameraPosition = pos;
+	this->cameraLookAt = pos + Vector3f(
+		cos(theta) * sin(phi),
+		sin(theta) * sin(phi),
+		cos(phi)
+	);
+	this->computeCameraLookAt();
+}
+
+void Scene::computeCameraLookAt(){
+	Vector3f direction = this->cameraLookAt - this->cameraPosition;
+	Vector3f right = this->cameraUp.cross(direction).normalized();
+	Vector3f up = direction.cross(right).normalized();
+	cameraLookAtMatrix = Matrix4::identity();
+	cameraLookAtMatrix.setLine(0, right);
+	cameraLookAtMatrix.setLine(1, up);
+	cameraLookAtMatrix.setLine(2, direction);
+
+	Matrix4 posMatrix = Matrix4::identity();
+	posMatrix.setColumn(3, -this->cameraPosition);
+
+	this->cameraLookAtMatrix *= posMatrix;
 }
 
 void Scene::popMatrix() {

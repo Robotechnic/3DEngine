@@ -43,6 +43,25 @@ float Matrix4::at(unsigned line, unsigned column) const {
 	return this->values[line * 4 + column];
 }
 
+void Matrix4::setLine(unsigned line, Vector3f vector) {
+	if (line < 0 || line > 3) {
+		throw std::out_of_range("Line index out of range");
+	}
+
+	this->values[line * 4] = vector.x;
+	this->values[line * 4 + 1] = vector.y;
+	this->values[line * 4 + 2] = vector.z;
+}
+
+void Matrix4::setColumn(unsigned column, Vector3f vector) {
+	if (column < 0 || column > 3) {
+		throw std::out_of_range("Column index out of range");
+	}
+
+	this->values[column] = vector.x;
+	this->values[column + 4] = vector.y;
+	this->values[column + 8] = vector.z;
+}
 
 Matrix4 Matrix4::projectionMatrix(float fov, float aspectRatio, float near, float far) {
 	double S = 1 / tan(fov / 2 * M_PI / 180);
