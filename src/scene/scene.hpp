@@ -14,6 +14,9 @@
 class Scene : public sf::Drawable {
 	public:
 		Scene(float width, float height, float fov, float near, float far);
+		void resize(float width, float height);
+		void setFov(float fov);
+
 		void setCamera(const Vector3f position, const Vector3f lookat, const Vector3f up);
 		void setCamera(const Vector3f position, const float theta, const float phi, const Vector3f up);
 
@@ -40,9 +43,10 @@ class Scene : public sf::Drawable {
 		
 		sf::Vector2f getProjection(Vector3f vector) const;
 
+		void computeProjectionMatrix();
 		void computeCameraLookAt();
 
-		float width, height;
+		float width, height, fov, near, far;
 		Matrix4 projectionMatrix;
 
 		Vector3f cameraPosition, cameraLookAt, cameraUp;

@@ -34,8 +34,19 @@ int main() {
 	while (window.isOpen()) {
 		sf::Event event;
 		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
+			if (event.type == sf::Event::Closed) {
                 window.close();
+			} else if (event.type == sf::Event::Resized){
+				scene.resize(event.size.width, event.size.height);	
+			} else if (event.type == sf::Event::KeyPressed) {
+				if (event.key.code == sf::Keyboard::W) {
+					scene.wireframe = !scene.wireframe;
+				} else if (event.key.code == sf::Keyboard::N) {
+					scene.normals = !scene.normals;
+				} else if (event.key.code == sf::Keyboard::F) {
+					scene.faces = !scene.faces;
+				}
+			}
 		}
 
 		scene.setCamera(Vector3f(cos(rotation) * 100, 50, sin(rotation) * 100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));

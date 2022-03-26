@@ -5,10 +5,24 @@ Scene::Scene(float width, float height, float fov, float near, float far) :
 	normals(false),
 	faces(true),
 	width(width),
-	height(height)
+	height(height),
+	fov(fov),
+	near(near),
+	far(far)
 {
-	this->projectionMatrix = Matrix4::projectionMatrix(fov, width / height, near, far);
+	this->computeProjectionMatrix();
 	this->worldStateMatrix = Matrix4::identity();
+}
+
+void Scene::resize(float width, float height){
+	this->width = width;
+	this->height = height;
+	this->computeProjectionMatrix();
+}
+
+void Scene::setFov(float fov) {
+	this->fov = fov;
+	this->computeProjectionMatrix();
 }
 
 void Scene::setCamera(const Vector3f position, const Vector3f lookat, const Vector3f up) {
@@ -26,6 +40,10 @@ void Scene::setCamera(const Vector3f pos, const float theta, const float phi, co
 		cos(phi)
 	);
 	this->computeCameraLookAt();
+}
+
+void Scene::computeProjectionMatrix() {
+	this->projectionMatrix = Matrix4::projectionMatrix(this->fov, this->width / this->height, this->near, this->far);
 }
 
 void Scene::computeCameraLookAt(){
