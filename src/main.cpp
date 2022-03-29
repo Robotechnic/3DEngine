@@ -10,9 +10,9 @@
 int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
 	Scene scene(500, 500, 90, 1, 1000);
-	scene.wireframe = true;
+	scene.wireframe = false;
 	scene.normals = false;
-	scene.faces = false;
+	scene.faces = true;
 	scene.setCamera(Vector3f(0, 0, -100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	window.setFramerateLimit(60);
@@ -25,11 +25,24 @@ int main() {
 		Vector3f(-50,0,0)
 	};
 
+	sf::Color facesColors[6] = {
+		sf::Color::Red,
+		sf::Color::Blue,
+		sf::Color::Cyan,
+		sf::Color::Magenta,
+		sf::Color::Green,
+		sf::Color::Yellow
+	};
+
 	for (int i = 0; i < CUBES; i++) {
 		cubes.at(i).setSize(20,20,20);
+		cubes.at(i).setFacesColors(facesColors);
 	}
 
 	float rotation = 0;
+	float distance = 250;
+
+	// float cubeRotation = 0;
 
 	while (window.isOpen()) {
 		sf::Event event;
@@ -45,12 +58,28 @@ int main() {
 					scene.normals = !scene.normals;
 				} else if (event.key.code == sf::Keyboard::F) {
 					scene.faces = !scene.faces;
+				} else if (event.key.code == sf::Keyboard::B) {
+					scene.zbuffer = !scene.zbuffer;
 				}
 			}
 		}
 
-		scene.setCamera(Vector3f(cos(rotation) * 100, 50, sin(rotation) * 100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+			distance -= 1;
+		} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+			distance += 1;
+		}
+
+		scene.setCamera(Vector3f(cos(rotation) * distance, 50, sin(rotation) * distance), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+		
 		rotation += 0.01;
+		// cubeRotation += 0.01;
+
+		
+		if(rotation > 2 * 3.1415926536) {
+			rotation = 0;
+		}
+		
 
 		window.clear();
 		scene.clear();
@@ -58,13 +87,14 @@ int main() {
 		for (int i = 0; i < CUBES; i++) {
 			scene.pushMatrix();
 			scene.translate(cubePos[i]);
+			// scene.rotate(0, cubeRotation, 0);
 			scene.drawShape(&cubes[i]);
 			scene.popMatrix();
 		}
 
 
 
-		window.draw(scene);
+		scene.draw(window);
 		window.display();
 	}
 

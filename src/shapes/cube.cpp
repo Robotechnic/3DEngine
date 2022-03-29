@@ -43,7 +43,7 @@ void Cube::init() {
 		}));
 	}
 
-	for (int i = 0; i < 36; i++) {
+	for (int i = 0; i < 12; i++) {
 		this->colors.push_back(sf::Color(this->color));
 	}
 	this->updateNeeded = false;
@@ -58,9 +58,18 @@ void Cube::update() {
 		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size);
 		t->calculateNormal();
 	}
-
-	for (sf::Color c : this->colors) {
-		c = this->color;
-	}
 	this->updateNeeded = false;
+}
+
+void Cube::setFaceColor(const unsigned face, const sf::Color color) {
+	if (face > 5) {
+		throw std::out_of_range("Face index out of range");
+	}
+	this->colors[face] = color;
+}
+
+void Cube::setFacesColors(const sf::Color colors[6]) {
+	for (int j = 0; j < 12; j++) {
+		this->colors[j] = colors[j/2];
+	}
 }

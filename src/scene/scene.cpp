@@ -1,9 +1,10 @@
 #include "scene.hpp"
 
-Scene::Scene(float width, float height, float fov, float near, float far) :
+Scene::Scene(unsigned width, unsigned height, float fov, float near, float far) :
 	wireframe(false),
 	normals(false),
 	faces(true),
+	zbuffer(false),
 	width(width),
 	height(height),
 	fov(fov),
@@ -12,11 +13,37 @@ Scene::Scene(float width, float height, float fov, float near, float far) :
 {
 	this->computeProjectionMatrix();
 	this->worldStateMatrix = Matrix4::identity();
+	this->initPixelsBuffers();
 }
 
-void Scene::resize(float width, float height){
+Scene::~Scene() {
+	delete[] this->pixels;
+	delete[] this->zBuffer;
+}
+
+void Scene::initPixelsBuffers() {
+	int pixelsCount = this->width * this->height;
+	// init pixel buffer
+	this->pixels = new sf::Uint8[pixelsCount * 4];
+	for (int i = 0; i < pixelsCount * 4; i++) {
+		this->pixels[i] = 255;
+	}
+
+	this->texture.create(this->width, this->height);
+	this->texture.update(this->pixels);
+	this->sprite.setTexture(this->texture);
+
+	// initialize z-buffer
+	this->zBuffer = new float[pixelsCount];
+	for (int i = 0; i < pixelsCount; i++) {
+		this->zBuffer[i] = std::numeric_limits<float>::infinity();
+	}
+}
+
+void Scene::resize(unsigned width, unsigned height){
 	this->width = width;
 	this->height = height;
+	this->initPixelsBuffers();
 	this->computeProjectionMatrix();
 }
 
@@ -91,7 +118,7 @@ void Scene::drawShape(Shape *shape) {
 	std::vector <Triangle> triangles = shape->getTriangles();
 	std::vector <sf::Color> colors = shape->getColors();
 
-	if (triangles.size() * 3 != colors.size()) {
+	if (triangles.size() != colors.size()) {
 		throw std::runtime_error("triangles and colors size mismatch");
 	}
 
@@ -105,15 +132,19 @@ void Scene::drawShape(Shape *shape) {
 	this->colors.insert(this->colors.end(), colors.begin(), colors.end());
 }
 
-bool Scene::isVisible(const Triangle &triangle) const {
-	float dot = triangle.normal.dot(triangle.v1 - this->cameraPosition);
-	return dot < 0;
+inline bool Scene::isVisible(const Triangle &triangle) const {
+	return triangle.normal.dot(triangle.v1);
+}
+
+void Scene::setTrianglePosFromCamera(Triangle &triangle) const {
+	for (int i = 0; i < 3; i++) {
+		triangle(i) = this->cameraLookAtMatrix * triangle.at(i);
+	}
+	triangle.calculateNormal();
 }
 
 sf::Vector2f Scene::getProjection(Vector3f vector) const {
-	vector = this->cameraLookAtMatrix * vector;
 	vector = this->projectionMatrix * vector;
-
 	vector.x += 1;
 	vector.y += 1;
 	vector.x *= this->width / 2;
@@ -122,18 +153,76 @@ sf::Vector2f Scene::getProjection(Vector3f vector) const {
 	return sf::Vector2f(vector.x, vector.y);
 }
 
-sf::VertexArray Scene::drawFaces() const {
-	sf::VertexArray vertexArray(sf::Triangles, this->triangles.size() * 3);
+float Scene::edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const sf::Vector2f &p3) const {
+	return ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x));
+}
+
+float Scene::computeZIndex(float w1, float w2, float w3, Vector3f v1, Vector3f v2, Vector3f v3) {
+	float z =  w1 / v1.z + w2 / v2.z  + w3 / v3.z;
+	// return 1/z;
+	return (1 / z - 1 / near)/(1 / this->far - 1 / this->near);
+}
+
+void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
+	Vector3f v1 = t.v1;
+	Vector3f v2 = t.v2;
+	Vector3f v3 = t.v3;
+
+	sf::Vector2f p1 = this->getProjection(v1);
+	sf::Vector2f p2 = this->getProjection(v2);
+	sf::Vector2f p3 = this->getProjection(v3);
+
+	int minX = std::min(p1.x, std::min(p2.x, p3.x));
+	int maxX = std::max(p1.x, std::max(p2.x, p3.x));
+	int minY = std::min(p1.y, std::min(p2.y, p3.y));
+	int maxY = std::max(p1.y, std::max(p2.y, p3.y));
+
+	float w1, w2, w3, area;
+	
+	for (int x = minX >= 0 ? minX : 0; x <= maxX && x <= this->width; x++) {
+		for (int y = minY >= 0 ? minY : 0; y <= maxY && x <= this->height; y++) {
+			area = edgeFunction(p1, p2, p3);
+			w1 = edgeFunction(p3, p2, sf::Vector2f(x, y));
+			w2 = edgeFunction(p2, p1, sf::Vector2f(x, y));
+			w3 = edgeFunction(p1, p3, sf::Vector2f(x, y));
+			if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
+				w1 /= area;
+				w2 /= area;
+				w3 /= area;
+				float z = computeZIndex(w1, w2, w3, v1, v2, v3);
+				if (z < this->zBuffer[y * height + x]) {
+					this->zBuffer[y * height + x] = z;
+					this->pixels[y * this->height * 4 + x * 4 + 0] = color.r;
+					this->pixels[y * this->height * 4 + x * 4 + 1] = color.g;
+					this->pixels[y * this->height * 4 + x * 4 + 2] = color.b;
+					this->pixels[y * this->height * 4 + x * 4 + 3] = 255;
+				}
+			}
+		}
+	}
+}
+
+void Scene::drawFaces() {
 	for (long unsigned int  i = 0; i < this->triangles.size(); i++) {
 		if (!isVisible(this->triangles[i])) {
 			continue;
 		}
-		for (int j = 0; j < 3; j++) {
-			vertexArray[i * 3 + j].position = this->getProjection(this->triangles[i].at(j));
-			vertexArray[i * 3 + j].color = this->colors[i];
+		this->rasterizeTriangle(this->triangles[i], this->colors[i]);
+	}
+	
+	this->texture.update(this->pixels);
+}
+
+void Scene::drawZBuffer() {
+	for (int x = 0; x < this->width; x++) {
+		for (int y = 0; y < this->height; y++) {
+			this->pixels[y * this->height * 4 + x * 4 + 0] = this->zBuffer[y * this->height + x];
+			this->pixels[y * this->height * 4 + x * 4 + 1] = this->zBuffer[y * this->height + x];
+			this->pixels[y * this->height * 4 + x * 4 + 2] = this->zBuffer[y * this->height + x];
+			this->pixels[y * this->height * 4 + x * 4 + 3] = 255;
 		}
 	}
-	return vertexArray;
+	this->texture.update(this->pixels);
 }
 
 sf::VertexArray Scene::drawWireframe() const {
@@ -159,6 +248,7 @@ sf::VertexArray Scene::drawNormals() const {
 		if (!isVisible(this->triangles[i])) {
 			continue;
 		}
+		
 		Vector3f center = this->triangles[i].getCenter();
 		Vector3f normal = this->triangles[i].normal;
 
@@ -171,19 +261,39 @@ sf::VertexArray Scene::drawNormals() const {
 	return vertexArray;
 }
 
-void Scene::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	sf::VertexArray array;
+void Scene::clear() {
+	this->triangles.clear();
+	this->colors.clear();
+	for (long unsigned int i = 0; i < this->width * this->height * 4; i++) {
+		this->pixels[i] = 0;
+	}
+	for (long unsigned int i = 0; i < this->width * this->height; i++) {
+		this->zBuffer[i] = std::numeric_limits<float>::max();
+	}
+}
+
+void Scene::draw(sf::RenderTarget& target) {
+	for (Triangle &t : this->triangles) {
+		setTrianglePosFromCamera(t);
+	}
+
+	if (this->zbuffer) {
+		this->drawFaces();
+		this->drawZBuffer();
+		target.draw(this->sprite);
+		return;
+	}
+
 	if (this->faces) {
-		array = this->drawFaces();
+		this->drawFaces();
+		target.draw(this->sprite);
 	}
 
 	if (this->wireframe) {
 		target.draw(this->drawWireframe());
-	} 
-	
-	target.draw(array, states);
+	}
 
 	if (this->normals) {
-		target.draw(this->drawNormals(), states);
+		target.draw(this->drawNormals());
 	}
 }
