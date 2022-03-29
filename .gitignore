@@ -55,3 +55,5 @@ compile_commands.json
 CTestTestfile.cmake
 *.gch
 _deps
+
+3Dengine

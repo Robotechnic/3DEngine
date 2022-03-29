@@ -9,7 +9,7 @@
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
-	Scene scene(500, 500, 90, 1, 1000);
+	Scene scene(500, 500, 90, 1, 100);
 	scene.wireframe = false;
 	scene.normals = false;
 	scene.faces = true;
@@ -42,7 +42,7 @@ int main() {
 	float rotation = 0;
 	float distance = 250;
 
-	// float cubeRotation = 0;
+	float cubeRotation = 0;
 
 	while (window.isOpen()) {
 		sf::Event event;
@@ -73,13 +73,15 @@ int main() {
 		scene.setCamera(Vector3f(cos(rotation) * distance, 50, sin(rotation) * distance), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 		
 		rotation += 0.01;
-		// cubeRotation += 0.01;
+		cubeRotation += 0.01;
 
 		
 		if(rotation > 2 * 3.1415926536) {
 			rotation = 0;
 		}
-		
+		if (cubeRotation >  2 * 3.1415926536) {
+			cubeRotation = 0;
+		}
 
 		window.clear();
 		scene.clear();
@@ -87,12 +89,10 @@ int main() {
 		for (int i = 0; i < CUBES; i++) {
 			scene.pushMatrix();
 			scene.translate(cubePos[i]);
-			// scene.rotate(0, cubeRotation, 0);
+			scene.rotate(cubeRotation, cubeRotation, 0);
 			scene.drawShape(&cubes[i]);
 			scene.popMatrix();
 		}
-
-
 
 		scene.draw(window);
 		window.display();

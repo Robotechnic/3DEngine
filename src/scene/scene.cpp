@@ -133,7 +133,7 @@ void Scene::drawShape(Shape *shape) {
 }
 
 inline bool Scene::isVisible(const Triangle &triangle) const {
-	return triangle.normal.dot(triangle.v1);
+	return triangle.normal.dot(triangle.v1) < 0 || true;
 }
 
 void Scene::setTrianglePosFromCamera(Triangle &triangle) const {
@@ -159,7 +159,6 @@ float Scene::edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const 
 
 float Scene::computeZIndex(float w1, float w2, float w3, Vector3f v1, Vector3f v2, Vector3f v3) {
 	float z =  w1 / v1.z + w2 / v2.z  + w3 / v3.z;
-	// return 1/z;
 	return (1 / z - 1 / near)/(1 / this->far - 1 / this->near);
 }
 
