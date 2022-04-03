@@ -183,49 +183,38 @@ void Scene::clipTriangle(
 		}
 	}
 
-	if (inside == 0) {
+	if (inside == 0) { // if the triangle is outside the plane
+		return;
+	}
+	if (inside == 3) { // if the triangle is inside the plane
+		renderTriangles.push_back(triangle);
+		renderColors.push_back(color);
 		return;
 	}
 
-	if (inside == 1) { // clip triangle
-		for (int i = 0; i < 3; i++) {
-			if (distances[i] > 0) {
-				Vector3f leftPoint = Vector3f::segmentPlaneIntersection(
-					planeNormal, planeD,
-					triangle.at(i), triangle.at((i + 1) % 3)
-				);
-				Vector3f rightPoint = Vector3f::segmentPlaneIntersection(
-					planeNormal, planeD,
-					triangle.at(i), triangle.at((i + 2) % 3)
-				);
-				renderTriangles.push_back(Triangle(triangle.at(i), leftPoint, rightPoint));
-				renderColors.push_back(color);
-				return;
-			}
-		}
+	// if there is points inside and outside the plane
+	for (int i = 0; i < inside; i++)
+		renderColors.push_back(color);
+
+	std::pair<Vector3f, Vector3f> intersections;
+	Vector3f leftPoint, rightPoint;
+
+	int pointIndex = 0;
+	while ((inside == 1 && distances[pointIndex] < 0) || (inside == 2 && distances[pointIndex] > 0)) {
+		pointIndex ++;
 	}
-	if (inside == 2) {
-		for (int i = 0; i < 3; i++) {
-			if (distances[i] < 0) {
-				Vector3f leftPoint = Vector3f::segmentPlaneIntersection(
-					planeNormal, planeD,
-					triangle.at(i), triangle.at((i + 1) % 3)
-				);
-				Vector3f rightPoint = Vector3f::segmentPlaneIntersection(
-					planeNormal, planeD,
-					triangle.at(i), triangle.at((i + 2) % 3)
-				);
-				renderColors.push_back(color);
-				renderColors.push_back(color);
-				renderTriangles.push_back(Triangle(leftPoint, triangle.at((i + 1) % 3), triangle.at((i + 2) % 3)));
-				renderTriangles.push_back(Triangle(leftPoint, triangle.at((i + 2) % 3), rightPoint));
-				return;
-			}
-		}
+	
+	intersections = triangle.getLeftRightIntersection(planeNormal, planeD, pointIndex);
+	std::tie(leftPoint, rightPoint) = intersections;
+
+	// clip triangle
+	if (inside == 1) {
+		renderTriangles.push_back(Triangle(triangle.at(pointIndex), leftPoint,  rightPoint));
+		return;
 	}
 
-	renderTriangles.push_back(triangle);
-	renderColors.push_back(color);
+	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 1) % 3), triangle.at((pointIndex + 2) % 3)));
+	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 2) % 3), rightPoint));
 }
 
 

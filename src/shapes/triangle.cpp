@@ -20,28 +20,29 @@ void Triangle::calculateNormal() {
 	normal.normalize();
 }
 
-Vector3f Triangle::at(float index) const {
+Vector3f Triangle::at(unsigned index) const {
 	if (index == 0) {
 		return this->v1;
 	} else if (index == 1) {
 		return this->v2;
 	} else if (index == 2) {
 		return this->v3;
-	} else {
-		throw std::runtime_error("Index out of range");
 	}
+	
+	throw std::runtime_error("Index out of range");
+	
 }
 
-Vector3f& Triangle::operator()(float index) {
+Vector3f& Triangle::operator()(unsigned index) {
 	if (index == 0) {
 		return this->v1;
 	} else if (index == 1) {
 		return this->v2;
 	} else if (index == 2) {
 		return this->v3;
-	} else {
-		throw std::runtime_error("Index out of range");
 	}
+	
+	throw std::runtime_error("Index out of range");
 }
 
 Vector3f Triangle::getCenter() const {
@@ -50,4 +51,20 @@ Vector3f Triangle::getCenter() const {
 
 Vector3f Triangle::getNormal() const {
 	return this->normal;
+}
+
+std::pair<Vector3f, Vector3f> Triangle::getLeftRightIntersection(
+	const Vector3f &planeNormal,
+	const float &planeD,
+	unsigned index
+) const {
+	Vector3f leftPoint = Vector3f::segmentPlaneIntersection(
+		planeNormal, planeD,
+		this->at(index), this->at((index + 1) % 3)
+	);
+	Vector3f rightPoint = Vector3f::segmentPlaneIntersection(
+		planeNormal, planeD,
+		this->at(index), this->at((index + 2) % 3)
+	);
+	return std::make_pair(leftPoint, rightPoint);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <tuple>
 #include "math/vector3.hpp"
 
 class Triangle {
@@ -10,12 +11,18 @@ class Triangle {
 
 		void calculateNormal();
 
-		Vector3f at(float index) const;
+		Vector3f at(unsigned index) const;
 
-		Vector3f& operator()(float index);
+		Vector3f& operator()(unsigned index);
 
 		Vector3f getCenter() const;
 		Vector3f getNormal() const;
+
+		std::pair<Vector3f, Vector3f> getLeftRightIntersection(
+			const Vector3f &planeNormal, 
+			const float &planeD,
+			unsigned index
+		) const;
 
 		Vector3f v1;
 		Vector3f v2;
