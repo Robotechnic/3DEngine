@@ -55,6 +55,12 @@ class Scene {
 		
 		void setTrianglePosFromCamera(Triangle &triangle) const;
 		sf::Vector2f getProjection(Vector3f vector) const;
+		void clipAgainstPlane(const Vector3f &planeNormal, const float &planeD);
+		void clipTriangle(
+			const Triangle &triangle, const sf::Color &color,
+			const Vector3f &planeNormal, const float &planeD,
+			std::vector<Triangle> &renderTriangles, std::vector<sf::Color> &renderColors
+		) const;
 
 		float computeZIndex(float w1, float w2, float w3, Vector3f v1, Vector3f v2, Vector3f v3);
 
@@ -63,7 +69,7 @@ class Scene {
 		
 		float edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const sf::Vector2f &p3) const;
 
-		unsigned width, height;
+		unsigned int width, height;
 		float fov, near, far;
 		Matrix4 projectionMatrix;
 

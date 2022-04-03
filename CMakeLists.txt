@@ -11,6 +11,7 @@ include_directories(
 add_executable(
 	3Dengine
 	src/math/matrix4.cpp
+	src/shapes/triangle.cpp
 	src/shapes/shape.cpp
 	src/shapes/cube.cpp
 	src/scene/scene.cpp

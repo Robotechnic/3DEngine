@@ -20,9 +20,9 @@ int main() {
 
 	Vector3f cubePos[4] = {
 		Vector3f(0,0,0),
-		Vector3f(50,0,0),
-		Vector3f(0,50,0),
-		Vector3f(-50,0,0)
+		Vector3f(65,0,0),
+		Vector3f(0,65,0),
+		Vector3f(-65,0,0)
 	};
 
 	sf::Color facesColors[6] = {
@@ -70,11 +70,10 @@ int main() {
 			distance += 1;
 		}
 
-		scene.setCamera(Vector3f(cos(rotation) * distance, 50, sin(rotation) * distance), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
-		
 		rotation += 0.01;
 		cubeRotation += 0.01;
 
+		scene.setCamera(Vector3f(cos(rotation) * distance, 50, sin(rotation) * distance), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 		
 		if(rotation > 2 * 3.1415926536) {
 			rotation = 0;
@@ -89,7 +88,7 @@ int main() {
 		for (int i = 0; i < CUBES; i++) {
 			scene.pushMatrix();
 			scene.translate(cubePos[i]);
-			scene.rotate(cubeRotation, cubeRotation, 0);
+			scene.rotate(0, cubeRotation, 0);
 			scene.drawShape(&cubes[i]);
 			scene.popMatrix();
 		}

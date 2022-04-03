@@ -133,7 +133,7 @@ void Scene::drawShape(Shape *shape) {
 }
 
 inline bool Scene::isVisible(const Triangle &triangle) const {
-	return triangle.normal.dot(triangle.v1) < 0 || true;
+	return triangle.getNormal().dot(triangle.v1) < 0;
 }
 
 void Scene::setTrianglePosFromCamera(Triangle &triangle) const {
@@ -152,6 +152,82 @@ sf::Vector2f Scene::getProjection(Vector3f vector) const {
 
 	return sf::Vector2f(vector.x, vector.y);
 }
+
+void Scene::clipAgainstPlane(const Vector3f &planeNormal, const float &planeD) {
+	std::vector<Triangle> renderTriangles;
+	std::vector<sf::Color> renderColors;
+	for (long unsigned int i = 0; i < this->triangles.size(); i++) {
+		if (isVisible(this->triangles[i])) {
+			this->clipTriangle(
+				this->triangles[i], this->colors[i],
+				planeNormal, planeD,
+				renderTriangles, renderColors
+			);
+		}
+	}
+	this->triangles = renderTriangles;
+	this->colors = renderColors;
+}
+
+void Scene::clipTriangle(
+	const Triangle &triangle, const sf::Color &color,
+	const Vector3f &planeNormal, const float &planeD,
+	std::vector<Triangle> &renderTriangles, std::vector<sf::Color> &renderColors
+) const {
+	float distances[3];
+	int inside = 0;
+	for (int i = 0; i < 3; i++) {
+		distances[i] = triangle.at(i).planeDistance(planeNormal, planeD);
+		if (distances[i] > 0) {
+			inside++;
+		}
+	}
+
+	if (inside == 0) {
+		return;
+	}
+
+	if (inside == 1) { // clip triangle
+		for (int i = 0; i < 3; i++) {
+			if (distances[i] > 0) {
+				Vector3f leftPoint = Vector3f::segmentPlaneIntersection(
+					planeNormal, planeD,
+					triangle.at(i), triangle.at((i + 1) % 3)
+				);
+				Vector3f rightPoint = Vector3f::segmentPlaneIntersection(
+					planeNormal, planeD,
+					triangle.at(i), triangle.at((i + 2) % 3)
+				);
+				renderTriangles.push_back(Triangle(triangle.at(i), leftPoint, rightPoint));
+				renderColors.push_back(color);
+				return;
+			}
+		}
+	}
+	if (inside == 2) {
+		for (int i = 0; i < 3; i++) {
+			if (distances[i] < 0) {
+				Vector3f leftPoint = Vector3f::segmentPlaneIntersection(
+					planeNormal, planeD,
+					triangle.at(i), triangle.at((i + 1) % 3)
+				);
+				Vector3f rightPoint = Vector3f::segmentPlaneIntersection(
+					planeNormal, planeD,
+					triangle.at(i), triangle.at((i + 2) % 3)
+				);
+				renderColors.push_back(color);
+				renderColors.push_back(color);
+				renderTriangles.push_back(Triangle(leftPoint, triangle.at((i + 1) % 3), triangle.at((i + 2) % 3)));
+				renderTriangles.push_back(Triangle(leftPoint, triangle.at((i + 2) % 3), rightPoint));
+				return;
+			}
+		}
+	}
+
+	renderTriangles.push_back(triangle);
+	renderColors.push_back(color);
+}
+
 
 float Scene::edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const sf::Vector2f &p3) const {
 	return ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x));
@@ -179,7 +255,7 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 	float w1, w2, w3, area;
 	
 	for (int x = minX >= 0 ? minX : 0; x <= maxX && x <= this->width; x++) {
-		for (int y = minY >= 0 ? minY : 0; y <= maxY && x <= this->height; y++) {
+		for (int y = minY >= 0 ? minY : 0; y <= maxY && y <= this->height; y++) {
 			area = edgeFunction(p1, p2, p3);
 			w1 = edgeFunction(p3, p2, sf::Vector2f(x, y));
 			w2 = edgeFunction(p2, p1, sf::Vector2f(x, y));
@@ -189,7 +265,7 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 				w2 /= area;
 				w3 /= area;
 				float z = computeZIndex(w1, w2, w3, v1, v2, v3);
-				if (z < this->zBuffer[y * height + x]) {
+				if (z < this->zBuffer[y * this->height + x]) {
 					this->zBuffer[y * height + x] = z;
 					this->pixels[y * this->height * 4 + x * 4 + 0] = color.r;
 					this->pixels[y * this->height * 4 + x * 4 + 1] = color.g;
@@ -203,9 +279,6 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 
 void Scene::drawFaces() {
 	for (long unsigned int  i = 0; i < this->triangles.size(); i++) {
-		if (!isVisible(this->triangles[i])) {
-			continue;
-		}
 		this->rasterizeTriangle(this->triangles[i], this->colors[i]);
 	}
 	
@@ -213,8 +286,8 @@ void Scene::drawFaces() {
 }
 
 void Scene::drawZBuffer() {
-	for (int x = 0; x < this->width; x++) {
-		for (int y = 0; y < this->height; y++) {
+	for (unsigned int x = 0; x < this->width; x++) {
+		for (unsigned int y = 0; y < this->height; y++) {
 			this->pixels[y * this->height * 4 + x * 4 + 0] = this->zBuffer[y * this->height + x];
 			this->pixels[y * this->height * 4 + x * 4 + 1] = this->zBuffer[y * this->height + x];
 			this->pixels[y * this->height * 4 + x * 4 + 2] = this->zBuffer[y * this->height + x];
@@ -227,9 +300,6 @@ void Scene::drawZBuffer() {
 sf::VertexArray Scene::drawWireframe() const {
 	sf::VertexArray vertexArray(sf::Lines, this->triangles.size() * 6);
 	for (long unsigned int  i = 0; i < this->triangles.size(); i++) {
-		if (!isVisible(this->triangles[i])) {
-			continue;
-		}
 		for (int j = 0; j < 6; j+= 2) {
 			vertexArray[i * 6 + j].position = this->getProjection(this->triangles[i].at(j % 3));
 			vertexArray[i * 6 + j].color = this->colors[i];
@@ -243,13 +313,9 @@ sf::VertexArray Scene::drawWireframe() const {
 
 sf::VertexArray Scene::drawNormals() const {
 	sf::VertexArray vertexArray(sf::Lines, this->triangles.size() * 2);
-	for (long unsigned int i = 0; i < this->triangles.size(); i++) {
-		if (!isVisible(this->triangles[i])) {
-			continue;
-		}
-		
+	for (long unsigned int i = 0; i < this->triangles.size(); i++) {		
 		Vector3f center = this->triangles[i].getCenter();
-		Vector3f normal = this->triangles[i].normal;
+		Vector3f normal = this->triangles[i].getNormal();
 
 		vertexArray[i * 2].position = this->getProjection(center);
 		vertexArray[i * 2].color = sf::Color::Red;
@@ -272,9 +338,11 @@ void Scene::clear() {
 }
 
 void Scene::draw(sf::RenderTarget& target) {
-	for (Triangle &t : this->triangles) {
-		setTrianglePosFromCamera(t);
+	for (long unsigned int i = 0; i < this->triangles.size(); i++) {
+		setTrianglePosFromCamera(this->triangles[i]);
 	}
+	clipAgainstPlane(Vector3f(0,0,1), -this->near);
+	clipAgainstPlane(Vector3f(0,0,-1), this->far);
 
 	if (this->zbuffer) {
 		this->drawFaces();

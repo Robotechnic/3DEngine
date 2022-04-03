@@ -4,6 +4,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
 
 class Matrix4;
 
@@ -97,6 +98,7 @@ class Vector3 {
 		float dot(const Vector3<T>& other) const {
 			return x * other.x + y * other.y + z * other.z;
 		}
+
 		Vector3<T> cross(const Vector3<T>& other) {
 			return Vector3<T>(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
 		}
@@ -121,6 +123,20 @@ class Vector3 {
 			return Vector3<T>(x / length, y / length, z / length);
 		}
 
+		T planeDistance(const Vector3<T>& planeNormal, const float& planeD) const {
+			return T(
+				planeNormal.dot(*this) + planeD
+			);
+		}
+
+		static Vector3<T> segmentPlaneIntersection(const Vector3<T>& planeNormal, const float &planeD, const Vector3<T>& segmentStart, const Vector3<T>& segmentEnd) {
+			if (planeNormal.dot(segmentEnd - segmentStart) == 0) {
+				return Vector3<T>();
+			}
+			T t = ((- planeD - planeNormal.dot(segmentStart)) / planeNormal.dot(segmentEnd - segmentStart));
+			return segmentStart + t * (segmentEnd - segmentStart);
+		}
+
 		T x, y, z;
 };
 
@@ -130,6 +146,10 @@ Vector3<T> operator+(const Vector3<T>& left, const Vector3<T>& right) {
 }
 template <typename T>
 Vector3<T> operator+(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x + right, left.y + right, left.z + right);
+}
+template <typename T>
+Vector3<T> operator+(const T& right, const Vector3<T>& left) {
 	return Vector3<T>(left.x + right, left.y + right, left.z + right);
 }
 template <typename T>
@@ -145,11 +165,19 @@ Vector3<T> operator-(const Vector3<T>& left, const T& right) {
 	return Vector3<T>(left.x - right, left.y - right, left.z - right);
 }
 template <typename T>
+Vector3<T> operator-(const T& right, const Vector3<T>& left) {
+	return Vector3<T>(left.x - right, left.y - right, left.z - right);
+}
+template <typename T>
 Vector3<T> operator*(const Vector3<T>& left, const Vector3<T>& right) {
 	return Vector3<T>(left.x * right.x, left.y * right.y, left.z * right.z);
 }
 template <typename T>
 Vector3<T> operator*(const Vector3<T>& left, const T& right) {
+	return Vector3<T>(left.x * right, left.y * right, left.z * right);
+}
+template <typename T>
+Vector3<T> operator*(const T& right, const Vector3<T>& left) {
 	return Vector3<T>(left.x * right, left.y * right, left.z * right);
 }
 template <typename T>
@@ -168,5 +196,6 @@ std::ostream& operator<<(std::ostream& os, const Vector3<T>& vec) {
 	return os;
 }
 
-typedef Vector3<float> Vector3f;
-typedef Vector3<int> Vector3i;
+typedef Vector3<float>  Vector3f;
+typedef Vector3<double> Vector3d;
+typedef Vector3<int>    Vector3i;
