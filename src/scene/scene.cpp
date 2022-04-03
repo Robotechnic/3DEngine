@@ -174,18 +174,13 @@ void Scene::clipTriangle(
 	const Vector3f &planeNormal, const float &planeD,
 	std::vector<Triangle> &renderTriangles, std::vector<sf::Color> &renderColors
 ) const {
-	float distances[3];
-	int inside = 0;
-	for (int i = 0; i < 3; i++) {
-		distances[i] = triangle.at(i).planeDistance(planeNormal, planeD);
-		if (distances[i] > 0) {
-			inside++;
-		}
-	}
+	int pointIndex, inside;
+	std::tie(pointIndex, inside) = triangle.getDistancesToPlane(planeNormal, planeD);
 
 	if (inside == 0) { // if the triangle is outside the plane
 		return;
 	}
+
 	if (inside == 3) { // if the triangle is inside the plane
 		renderTriangles.push_back(triangle);
 		renderColors.push_back(color);
@@ -196,16 +191,8 @@ void Scene::clipTriangle(
 	for (int i = 0; i < inside; i++)
 		renderColors.push_back(color);
 
-	std::pair<Vector3f, Vector3f> intersections;
 	Vector3f leftPoint, rightPoint;
-
-	int pointIndex = 0;
-	while ((inside == 1 && distances[pointIndex] < 0) || (inside == 2 && distances[pointIndex] > 0)) {
-		pointIndex ++;
-	}
-	
-	intersections = triangle.getLeftRightIntersection(planeNormal, planeD, pointIndex);
-	std::tie(leftPoint, rightPoint) = intersections;
+	std::tie(leftPoint, rightPoint) = triangle.getLeftRightIntersection(planeNormal, planeD, pointIndex);
 
 	// clip triangle
 	if (inside == 1) {

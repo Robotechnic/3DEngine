@@ -24,6 +24,11 @@ class Triangle {
 			unsigned index
 		) const;
 
+		std::pair<int, int> getDistancesToPlane(
+			const Vector3f &planeNormal, 
+			const float &planeD
+		) const;
+
 		Vector3f v1;
 		Vector3f v2;
 		Vector3f v3;

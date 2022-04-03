@@ -68,3 +68,25 @@ std::pair<Vector3f, Vector3f> Triangle::getLeftRightIntersection(
 	);
 	return std::make_pair(leftPoint, rightPoint);
 }
+
+std::pair<int, int> Triangle::getDistancesToPlane(
+	const Vector3f &planeNormal, 
+	const float &planeD
+) const {
+	Vector3f distances;
+	int inside = 0;
+	for (unsigned i = 0; i < 3; i++) {
+		float distance = planeNormal.dot(this->at(i)) + planeD;
+		distances(i) = distance;
+		if (distance > 0) {
+			inside++;
+		}
+	}
+
+	int pointIndex = 0;
+	while ((inside == 1 && distances(pointIndex) < 0) || (inside == 2 && distances(pointIndex) > 0)) {
+		pointIndex ++;
+	}
+
+	return std::make_pair(pointIndex, inside);
+}
