@@ -6,7 +6,7 @@
 
 class Triangle {
 	public:
-		Triangle(Vector3f v1, Vector3f v2, Vector3f v3);
+		Triangle(Vector3f v1 = Vector3f(), Vector3f v2 = Vector3f(), Vector3f v3 = Vector3f());
 		Triangle(const Triangle& other);
 
 		void calculateNormal();

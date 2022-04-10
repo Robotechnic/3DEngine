@@ -1,4 +1,4 @@
-#include "scene.hpp"
+#include "scene/scene.hpp"
 
 Scene::Scene(unsigned width, unsigned height, float fov, float near, float far) :
 	wireframe(false),

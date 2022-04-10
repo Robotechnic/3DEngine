@@ -1,4 +1,4 @@
-#include "shape.hpp"
+#include "shapes/shape.hpp"
 
 Shape::Shape(Vector3f size, Vector3f pos) : 
 	size(size),
@@ -57,4 +57,16 @@ void Shape::rotate(Vector3f rotation) {
 
 void Shape::rotate(float x, float y, float z) {
 	this->rotate(Vector3f(x, y, z));
+}
+
+void Shape::init() {
+	this->shape_init();
+	this->updateNeeded = false;
+}
+
+void Shape::update() {
+	if (!this->updateNeeded)
+		return
+	this->shape_update();
+	this->updateNeeded = false;
 }

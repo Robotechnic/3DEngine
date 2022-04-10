@@ -4,7 +4,7 @@
 #include <vector>
 #include "math/vector3.hpp"
 #include "math/matrix4.hpp"
-#include "triangle.hpp"
+#include "shapes/triangle.hpp"
 
 class Shape {
 	public:
@@ -12,8 +12,8 @@ class Shape {
 		Shape(const Shape& other);
 		~Shape();
 
-		virtual void init() = 0;
-		virtual void update() = 0;
+		void init();
+		void update();
 
 		virtual std::vector<Triangle> getTriangles() {
 			this->update();
@@ -41,4 +41,7 @@ class Shape {
 		bool updateNeeded; //avoid unnecessary updates
 		std::vector<Triangle> triangles;
 		std::vector<sf::Color> colors;
+
+		virtual void shape_init() = 0;
+		virtual void shape_update() = 0;
 };

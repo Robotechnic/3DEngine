@@ -1,4 +1,4 @@
-#include "matrix4.hpp"
+#include "math/matrix4.hpp"
 
 Matrix4::Matrix4() {
 	for (int i = 0; i < 16; i++) {

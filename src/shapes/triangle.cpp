@@ -1,4 +1,4 @@
-#include "triangle.hpp"
+#include "shapes/triangle.hpp"
 
 Triangle::Triangle(Vector3f v1, Vector3f v2, Vector3f v3) :
 	v1(v1),

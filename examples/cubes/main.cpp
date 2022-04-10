@@ -9,7 +9,7 @@
 
 int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "3D render");
-	Scene scene(500, 500, 90, 1, 100);
+	Scene scene(500, 500, 90, 1, 1000);
 	scene.wireframe = false;
 	scene.normals = false;
 	scene.faces = true;
@@ -20,9 +20,9 @@ int main() {
 
 	Vector3f cubePos[4] = {
 		Vector3f(0,0,0),
-		Vector3f(65,0,0),
-		Vector3f(0,65,0),
-		Vector3f(-65,0,0)
+		Vector3f(35,0,0),
+		Vector3f(0,35,0),
+		Vector3f(-35,0,0)
 	};
 
 	sf::Color facesColors[6] = {
@@ -35,7 +35,7 @@ int main() {
 	};
 
 	for (int i = 0; i < CUBES; i++) {
-		cubes.at(i).setSize(20,20,20);
+		cubes.at(i).setSize(30,30,30);
 		cubes.at(i).setFacesColors(facesColors);
 	}
 

@@ -1,4 +1,4 @@
-#include "cube.hpp"
+#include "shapes/cube.hpp"
 
 // store all cube vertex in triangle shape
 const Vector3f vertex_pos[] {
@@ -34,7 +34,7 @@ Cube::Cube(Vector3f size, Vector3f pos) :
 	this->init();
 }
 
-void Cube::init() {
+void Cube::shape_init() {
 	for (int i = 0; i < 36; i += 3) {
 		this->triangles.push_back(Triangle({
 			this->rotationMatrix * (vertex_pos[i] * size),
@@ -46,10 +46,9 @@ void Cube::init() {
 	for (int i = 0; i < 12; i++) {
 		this->colors.push_back(sf::Color(this->color));
 	}
-	this->updateNeeded = false;
 }
 
-void Cube::update() {
+void Cube::shape_update() {
 	if (!this->updateNeeded) return;
 	for (int i = 0; i < 36; i += 3) {
 		Triangle *t = &this->triangles[i / 3];
@@ -58,7 +57,6 @@ void Cube::update() {
 		t->v3 = this->rotationMatrix * (vertex_pos[i + 2] * size);
 		t->calculateNormal();
 	}
-	this->updateNeeded = false;
 }
 
 void Cube::setFaceColor(const unsigned face, const sf::Color color) {

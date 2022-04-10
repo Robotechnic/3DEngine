@@ -7,18 +7,19 @@
 #include <stdexcept>
 #include <iostream>
 #include "math/vector3.hpp"
-#include "shape.hpp"
+#include "shapes/shape.hpp"
 
 
 class Cube : public Shape  {
 	public:
 		Cube(Vector3f size = Vector3f(10, 10, 10), Vector3f pos = Vector3f(0, 0, 0));
-
-		void update() override;
-		void init() override;
 		void setFaceColor(const unsigned face, const sf::Color color);
 		void setFacesColors(const sf::Color colors[6]);
 	
 		sf::Color color;
+	
+	private:
+		void shape_update() override;
+		void shape_init() override;
 		
 };

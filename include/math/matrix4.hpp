@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <ostream>
-#include "vector3.hpp"
+#include "math/vector3.hpp"
 
 class Matrix4 {
 	public:
