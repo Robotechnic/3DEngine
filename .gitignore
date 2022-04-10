@@ -7,7 +7,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -46,7 +45,6 @@ Testing
 Makefile
 *.o
 cmake_install.cmake
-*.obj
 install_manifest.txt
 build
 
@@ -55,5 +53,3 @@ compile_commands.json
 CTestTestfile.cmake
 *.gch
 _deps
-
-3Dengine

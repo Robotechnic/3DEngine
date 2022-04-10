@@ -14,8 +14,8 @@ bool ObjLoader::initFileStream() {
 
 	try {
 		this->file.open(this->fileName);
-		if (!file.is_open()) {
-			this->errorMessage = "ObjLoader::loadFile: Could not open file " + this->fileName;
+		if (file.fail()) {
+			this->errorMessage = "ObjLoader::loadFile: Failled to open file " + this->fileName;
 			return false;
 		}
 	} catch (const std::exception &e) {
