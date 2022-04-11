@@ -6,6 +6,13 @@ ObjLoader::ObjLoader(const ObjLoader& other) :
 	objLoaded(other.objLoaded)
 {}
 
+/**
+ * @brief split a string with a delimiter
+ * 
+ * @param s the string to split
+ * @param delim split delimiter
+ * @return std::vector<std::string> each token exept the first if is empty
+ */
 std::vector<std::string> ObjLoader::split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	std::stringstream ss(s);
@@ -20,6 +27,11 @@ std::vector<std::string> ObjLoader::split(const std::string &s, char delim) {
 	return elems;
 }
 
+/**
+ * @brief initialize the obj loader ifstream
+ * 
+ * @return bool true if the file was loaded
+ */
 bool ObjLoader::initFileStream() {
 	if (this->fileName.size() == 0) {
 		throw std::runtime_error("ObjLoader::loadFile: No file name specified");
@@ -39,6 +51,12 @@ bool ObjLoader::initFileStream() {
 	return true;
 }
 
+/**
+ * @brief load the material file if one is specified in the obj file
+ * 
+ * @param file the file stream
+ * @return bool true if the file was loaded
+ */
 bool ObjLoader::loadMTL(std::ifstream &file) {
 	std::string mtlFileName;
 	std::getline(this->file, mtlFileName);
@@ -58,6 +76,12 @@ bool ObjLoader::loadMTL(std::ifstream &file) {
 	return true;
 }
 
+/**
+ * @brief parse the material file
+ * 
+ * @param lineType the line beginning that must be mtllib
+ * @return bool true if the file syntax is correct
+ */
 bool ObjLoader::parseMTL(std::string &lineType) {
 	if (lineType != "mtllib") {
 		this->errorMessage = "ObjLoader::parseMTL: Expected 'mtllib'";
@@ -81,6 +105,7 @@ bool ObjLoader::parseMTL(std::string &lineType) {
 		} else if (elems[0] == "Kd") {
 			if (materialName.size() == 0) {
 				this->errorMessage = "ObjLoader::parseMTL: Expected 'newmtl' before 'Kd'";
+				file.close();
 				return false;
 			}
 			try {
@@ -91,14 +116,22 @@ bool ObjLoader::parseMTL(std::string &lineType) {
 				);
 			} catch (const std::exception &e) {
 				this->errorMessage = "ObjLoader::parseMTL: Failed to parse color :" + std::string(e.what());
+				file.close();
 				return false;
 			}
 		}
 	}
 
+	file.close();
 	return true;
 }
 
+/**
+ * @brief set the current color to the material color if one is specified
+ * 
+ * @param lineType the beginning of the line, must be usemtl
+ * @return bool true if the material exists
+ */
 bool ObjLoader::setMTL(std::string &lineType) {
 	if (lineType != "usemtl") {
 		this->errorMessage = "ObjLoader::setMTL: Expected 'usemtl'";
@@ -117,6 +150,12 @@ bool ObjLoader::setMTL(std::string &lineType) {
 	return true;
 }
 
+/**
+ * @brief parse vertex line and add it to the vertex list
+ * 
+ * @param lineType the beginning of the line, must be v, vn or vt
+ * @return bool true if the line syntax is correct
+ */
 bool ObjLoader::parseVertex(std::string &lineType) {
 	if (lineType == "v") {
 		Vector3f vertex;
@@ -141,7 +180,17 @@ bool ObjLoader::parseVertex(std::string &lineType) {
 	return false;
 }
 
+/**
+ * @brief Parce a face line, it only supports triangles for now
+ * 
+ * @param lineType the beginning of the line, must be f
+ * @return bool true if the line syntax is correct
+ */
 bool ObjLoader::parseFace(std::string &lineType) {
+	if (lineType != "f") {
+		this->errorMessage = "ObjLoader::parseFace: Expected 'f'";
+		return false;
+	}
 	std::string face;
 	std::getline(this->file, face);
 	auto vertex = split(face, ' ');
@@ -177,6 +226,11 @@ bool ObjLoader::parseFace(std::string &lineType) {
 	return true;
 }
 
+/**
+ * @brief parse and load a .obj file
+ * 
+ * @param fileName the path to the file
+ */
 void ObjLoader::loadObjFile(const std::string &fileName) {
 	std::string lineStart;
 	bool parserResult;
@@ -223,6 +277,7 @@ void ObjLoader::loadObjFile(const std::string &fileName) {
 		}
 		std::getline(this->file, lineStart, ' ');
 	}
+	this->file.close();
 	this->verticles.clear();
 	this->objLoaded = parserResult;
 	this->updateNeeded = parserResult;
@@ -260,16 +315,38 @@ void ObjLoader::shape_update() {
 	}
 }
 
+/**
+ * @brief check if the file is loaded
+ * 
+ * @return bool if the file is correctly loaded
+ */
 bool ObjLoader::isLoaded() const {
 	return this->objLoaded;
 }
+
+/**
+ * @brief get the current file name
+ * 
+ * @return std::string the file name
+ */
 std::string ObjLoader::getFileName() const {
 	return this->fileName;
 }
+
+/**
+ * @brief get the error message
+ * 
+ * @return std::string the error message
+ */
 std::string ObjLoader::getErrorMessage() const {
 	return this->errorMessage;
 }
 
+/**
+ * @brief get the error line
+ * 
+ * @return int the error line
+ */
 int ObjLoader::getErrorLine() const {
 	return this->errorLine;
 }

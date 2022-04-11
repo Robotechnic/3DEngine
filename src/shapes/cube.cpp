@@ -59,6 +59,12 @@ void Cube::shape_update() {
 	}
 }
 
+/**
+ * @brief set the color of a specific face
+ * 
+ * @param face the id of the face in order front, back, right, left, top, bottom
+ * @param color the color to set
+ */
 void Cube::setFaceColor(const unsigned face, const sf::Color color) {
 	if (face > 5) {
 		throw std::out_of_range("Face index out of range");
@@ -66,6 +72,11 @@ void Cube::setFaceColor(const unsigned face, const sf::Color color) {
 	this->colors[face] = color;
 }
 
+/**
+ * @brief set color of all faces
+ * 
+ * @param colors color to set
+ */
 void Cube::setFacesColors(const sf::Color colors[6]) {
 	for (int j = 0; j < 12; j++) {
 		this->colors[j] = colors[j/2];

@@ -43,6 +43,12 @@ float Matrix4::at(unsigned line, unsigned column) const {
 	return this->values[line * 4 + column];
 }
 
+/**
+ * @brief set the value of a line in the matrix with a vector
+ * 
+ * @param line the line to set
+ * @param vector the values to put in
+ */
 void Matrix4::setLine(unsigned line, Vector3f vector) {
 	if (line < 0 || line > 3) {
 		throw std::out_of_range("Line index out of range");
@@ -53,6 +59,12 @@ void Matrix4::setLine(unsigned line, Vector3f vector) {
 	this->values[line * 4 + 2] = vector.z;
 }
 
+/**
+ * @brief set the value of a column in the matrix with a vector
+ * 
+ * @param column the column to set
+ * @param vector the values to put in
+ */
 void Matrix4::setColumn(unsigned column, Vector3f vector) {
 	if (column < 0 || column > 3) {
 		throw std::out_of_range("Column index out of range");
@@ -63,6 +75,15 @@ void Matrix4::setColumn(unsigned column, Vector3f vector) {
 	this->values[column + 8] = vector.z;
 }
 
+/**
+ * @brief return a projection matrix based on the given parameters
+ * 
+ * @param fov the field of view of the projection
+ * @param aspectRatio the aspect ration of the projection rectangle
+ * @param near the minimum render distance
+ * @param far the maximum render distance
+ * @return Matrix4 the resulting projection matrix
+ */
 Matrix4 Matrix4::projectionMatrix(float fov, float aspectRatio, float near, float far) {
 	double S = 1 / tan(fov / 2 * M_PI / 180);
 	Matrix4 matrix;
@@ -75,7 +96,11 @@ Matrix4 Matrix4::projectionMatrix(float fov, float aspectRatio, float near, floa
 	return matrix;
 }
 
-
+/**
+ * @brief return an identity matrix of size 4x4
+ * 
+ * @return Matrix4 the identity matrix
+ */
 Matrix4 Matrix4::identity() {
 	Matrix4 result;
 	for (int i = 0; i < 4; i++) {
@@ -86,6 +111,12 @@ Matrix4 Matrix4::identity() {
 	return result;
 }
 
+/**
+ * @brief return a translation matrix
+ * 
+ * @param translation the translation to apply
+ * @return Matrix4 the resulting translation matrix
+ */
 Matrix4 Matrix4::translation(Vector3<float> translation) {
 	Matrix4 matrix;
 	matrix(0, 0) = 1;
@@ -99,10 +130,21 @@ Matrix4 Matrix4::translation(Vector3<float> translation) {
 	return matrix;
 }
 
+/**
+ * @brief build a translation matrix
+ * @see Matrix4::translation(Vector3<float> translation)
+ * @return Matrix4 the resulting translation matrix
+ */
 Matrix4 Matrix4::translation(float x, float y, float z) {
 	return Matrix4::translation(Vector3<float>(x, y, z));
 }
 
+/**
+ * @brief return a rotation matrix
+ * 
+ * @param rotation the rotation to apply with each rotation around an axis (x, y and z)
+ * @return Matrix4 the resulting rotation matrix
+ */
 Matrix4 Matrix4::rotation(Vector3<float> rotation) {
 	float c1 = cos(rotation.x);
 	float s1 = sin(rotation.x);
@@ -138,6 +180,12 @@ Matrix4 Matrix4::rotation(Vector3<float> rotation) {
 	return MX * MY * MZ;
 }
 
+/**
+ * @brief build a rotation matrix
+ * 
+ * @see Matrix4::rotation(Vector3<float> rotation)
+ * @return Matrix4 the resulting rotation matrix
+ */
 Matrix4 Matrix4::rotation(float anglex, float angley, float anglez) {
 	return Matrix4::rotation(Vector3f(anglex, angley, anglez));
 }
