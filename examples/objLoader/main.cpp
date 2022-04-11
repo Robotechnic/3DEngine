@@ -62,8 +62,6 @@ int main() {
 		window.clear();
 		scene.draw(window);
 		window.display();
-		auto bounds = scene.getZbound();
-		std::cout << std::get<0>(bounds) << " " << std::get<1>(bounds) << std::endl;
 	}
 
 	return 0;
