@@ -37,7 +37,7 @@ void Scene::initPixelsBuffers() {
 	// initialize z-buffer
 	this->zBuffer = new float[pixelsCount];
 	for (int i = 0; i < pixelsCount; i++) {
-		this->zBuffer[i] = std::numeric_limits<float>::infinity();
+		this->zBuffer[i] = 0;
 	}
 }
 
@@ -214,7 +214,7 @@ float Scene::edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const 
 }
 
 float Scene::computeZIndex(float w1, float w2, float w3, Vector3f v1, Vector3f v2, Vector3f v3) {
-	float z =  1 / (w1 * v1.z + w2 * v2.z  + w3 * v3.z);
+	float z =  1 / (w1 * v1.z + w2 * v2.z  + w3 * v3.z); // compute z-index
 	if (z > this->maxZ) {
 		this->maxZ = z;
 	}
@@ -252,7 +252,7 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 				w2 /= area;
 				w3 /= area;
 				float z = computeZIndex(w1, w2, w3, v1, v2, v3);
-				if (z < this->zBuffer[y * this->height + x]) {
+				if (z > this->zBuffer[y * this->height + x]) {
 					this->zBuffer[y * height + x] = z;
 					this->pixels[y * this->height * 4 + x * 4 + 0] = color.r;
 					this->pixels[y * this->height * 4 + x * 4 + 1] = color.g;
@@ -324,7 +324,7 @@ void Scene::clear() {
 		this->pixels[i] = 0;
 	}
 	for (long unsigned int i = 0; i < this->width * this->height; i++) {
-		this->zBuffer[i] = std::numeric_limits<float>::max();
+		this->zBuffer[i] = 0;
 	}
 }
 
