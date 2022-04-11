@@ -8,7 +8,7 @@
 
 class Shape {
 	public:
-		Shape(Vector3f size, Vector3f pos);
+		Shape(Vector3f size);
 		Shape(const Shape& other);
 		~Shape();
 

@@ -1,6 +1,6 @@
 #include "shapes/shape.hpp"
 
-Shape::Shape(Vector3f size, Vector3f pos) : 
+Shape::Shape(Vector3f size) : 
 	size(size),
 	rotation(0, 0, 0), 
 	rotationMatrix(Matrix4::rotation(0, 0, 0)), 

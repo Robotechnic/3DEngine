@@ -27,8 +27,8 @@ const Vector3f vertex_pos[] {
 	Vector3f(-1, -1, -1), Vector3f(1, -1, 1), Vector3f(-1, -1, 1)
 };
 
-Cube::Cube(Vector3f size, Vector3f pos) : 
-	Shape(size, pos),
+Cube::Cube(Vector3f size) : 
+	Shape(size),
 	color(sf::Color::White)
 {
 	this->init();
@@ -41,6 +41,7 @@ void Cube::shape_init() {
 			this->rotationMatrix * (vertex_pos[i + 1] * size),
 			this->rotationMatrix * (vertex_pos[i + 2] * size),
 		}));
+		this->triangles.at(i).calculateNormal();
 	}
 
 	for (int i = 0; i < 12; i++) {
@@ -49,7 +50,6 @@ void Cube::shape_init() {
 }
 
 void Cube::shape_update() {
-	if (!this->updateNeeded) return;
 	for (int i = 0; i < 36; i += 3) {
 		Triangle *t = &this->triangles[i / 3];
 		t->v1 = this->rotationMatrix * (vertex_pos[i] * size);

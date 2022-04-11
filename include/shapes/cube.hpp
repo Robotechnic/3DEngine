@@ -12,7 +12,7 @@
 
 class Cube : public Shape  {
 	public:
-		Cube(Vector3f size = Vector3f(10, 10, 10), Vector3f pos = Vector3f(0, 0, 0));
+		Cube(Vector3f size = Vector3f(10, 10, 10));
 		void setFaceColor(const unsigned face, const sf::Color color);
 		void setFacesColors(const sf::Color colors[6]);
 	

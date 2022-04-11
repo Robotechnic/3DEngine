@@ -7,9 +7,12 @@
 int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "OBJ Loader");
 	Scene scene(500, 500, 90, 1, 1000);
-	scene.wireframe = true;
+	scene.wireframe = false;
 	scene.normals = false;
-	scene.faces = false;
+	scene.normalLength = 0.1;
+	scene.faces = true;
+
+	scene.setCamera(Vector3f(0, 4, -3), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	window.setFramerateLimit(60);
 
@@ -23,7 +26,10 @@ int main() {
 		
 		return 1;
 	}
+	std::cout << "Object loaded" <<std::endl;
 
+	float rotation = 0, distance = 1;
+	float direction = 0.02;
 	while (window.isOpen()) {
 		sf::Event event;
 		while (window.pollEvent(event)) {
@@ -32,7 +38,25 @@ int main() {
 			}
 		}
 
+		rotation += 0.01;
+		distance += direction;
+
+		if (rotation > 2 * 3.1415) {
+			rotation = 0;
+		}
+
+		if (distance < -1) {
+			direction *= -1;
+		} else if (distance > 2) {
+			direction *= -1;
+		}
+
+		scene.clear();
+		scene.pushMatrix();
+		scene.translate(0, 0, distance);
+		scene.rotate(0, rotation, 0);
 		scene.drawShape(&loader);
+		scene.popMatrix();
 
 		window.clear();
 		scene.draw(window);

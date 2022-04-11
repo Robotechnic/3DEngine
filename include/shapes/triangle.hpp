@@ -3,10 +3,11 @@
 #include <stdexcept>
 #include <tuple>
 #include "math/vector3.hpp"
+#include "math/matrix4.hpp"
 
 class Triangle {
 	public:
-		Triangle(Vector3f v1 = Vector3f(), Vector3f v2 = Vector3f(), Vector3f v3 = Vector3f());
+		Triangle(Vector3f v1 = Vector3f(), Vector3f v2 = Vector3f(), Vector3f v3 = Vector3f(), Vector3f normal = Vector3f());
 		Triangle(const Triangle& other);
 
 		void calculateNormal();
@@ -29,9 +30,10 @@ class Triangle {
 			const float &planeD
 		) const;
 
+		void applyTransform(const Matrix4 &rotation, const Vector3f &translation);
+
 		Vector3f v1;
 		Vector3f v2;
 		Vector3f v3;
-	private:
 		Vector3f normal;
 };

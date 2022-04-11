@@ -20,9 +20,9 @@ int main() {
 
 	Vector3f cubePos[4] = {
 		Vector3f(0,0,0),
-		Vector3f(35,0,0),
-		Vector3f(0,35,0),
-		Vector3f(-35,0,0)
+		Vector3f(65,0,0),
+		Vector3f(0,65,0),
+		Vector3f(-65,0,0)
 	};
 
 	sf::Color facesColors[6] = {
@@ -35,7 +35,7 @@ int main() {
 	};
 
 	for (int i = 0; i < CUBES; i++) {
-		cubes.at(i).setSize(30,30,30);
+		cubes.at(i).setSize(25, 25, 25);
 		cubes.at(i).setFacesColors(facesColors);
 	}
 
@@ -44,7 +44,11 @@ int main() {
 
 	float cubeRotation = 0;
 
+	sf::Clock clock;
+	float fps = 0;
+
 	while (window.isOpen()) {
+		clock.restart();
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {

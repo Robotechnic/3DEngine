@@ -1,11 +1,11 @@
 #include "shapes/triangle.hpp"
 
-Triangle::Triangle(Vector3f v1, Vector3f v2, Vector3f v3) :
+Triangle::Triangle(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normal) :
 	v1(v1),
 	v2(v2),
-	v3(v3)
+	v3(v3),
+	normal(normal)
 {
-	this->calculateNormal();
 }
 
 Triangle::Triangle(const Triangle& other) : 
@@ -89,4 +89,11 @@ std::pair<int, int> Triangle::getDistancesToPlane(
 	}
 
 	return std::make_pair(pointIndex, inside);
+}
+
+void Triangle::applyTransform(const Matrix4 &rotation, const Vector3f &size) {
+	this->v1 = rotation * (this->v1 * size);
+	this->v2 = rotation * (this->v2 * size);
+	this->v3 = rotation * (this->v3 * size);
+	this->normal = rotation * this->normal;
 }

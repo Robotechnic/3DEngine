@@ -44,6 +44,7 @@ class Scene {
 		bool normals;
 		bool faces;
 		bool zbuffer;
+		float normalLength;
 	
 	private:
 		void initPixelsBuffers();

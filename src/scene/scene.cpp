@@ -5,6 +5,7 @@ Scene::Scene(unsigned width, unsigned height, float fov, float near, float far) 
 	normals(false),
 	faces(true),
 	zbuffer(false),
+	normalLength(1.0f),
 	width(width),
 	height(height),
 	fov(fov),
@@ -230,8 +231,8 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 
 	float w1, w2, w3, area;
 	
-	for (int x = minX >= 0 ? minX : 0; x <= maxX && x <= this->width; x++) {
-		for (int y = minY >= 0 ? minY : 0; y <= maxY && y <= this->height; y++) {
+	for (unsigned int x = minX >= 0 ? minX : 0; x <= maxX && x <= this->width; x++) {
+		for (unsigned int y = minY >= 0 ? minY : 0; y <= maxY && y <= this->height; y++) {
 			area = edgeFunction(p1, p2, p3);
 			w1 = edgeFunction(p3, p2, sf::Vector2f(x, y));
 			w2 = edgeFunction(p2, p1, sf::Vector2f(x, y));
@@ -296,7 +297,7 @@ sf::VertexArray Scene::drawNormals() const {
 		vertexArray[i * 2].position = this->getProjection(center);
 		vertexArray[i * 2].color = sf::Color::Red;
 
-		vertexArray[i * 2 + 1].position = this->getProjection(center + normal * 10.0f);
+		vertexArray[i * 2 + 1].position = this->getProjection(center + normal * this->normalLength);
 		vertexArray[i * 2 + 1].color = sf::Color::Red;
 	}
 	return vertexArray;
