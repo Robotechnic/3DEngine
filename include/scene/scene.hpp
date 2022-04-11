@@ -40,6 +40,8 @@ class Scene {
 		void drawShape(Shape *shape);
 		void rasterizeTriangle(const Triangle &t, const sf::Color& color);
 
+		std::tuple<float, float> getZbound() const;
+
 		bool wireframe;
 		bool normals;
 		bool faces;
@@ -89,4 +91,5 @@ class Scene {
 		sf::Texture texture;
 		sf::Sprite sprite;
 		float *zBuffer;
+		float minZ, maxZ;
 };

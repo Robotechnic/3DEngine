@@ -10,14 +10,15 @@ int main() {
 	scene.wireframe = false;
 	scene.normals = false;
 	scene.normalLength = 0.1;
-	scene.faces = true;
+	scene.faces = false;
+	scene.zbuffer = true;
 
 	scene.setCamera(Vector3f(0, 4, -3), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	window.setFramerateLimit(60);
 
-	ObjLoader loader;
-	loader.loadObjFile("./assets/teapot.obj");
+	ObjLoader loader(Vector3f(1.2, 1.2, 1.2));
+	loader.loadObjFile("./assets/axis.obj");
 
 	if (!loader.isLoaded()) {
 		std::cout << "Error loading file" << std::endl;
@@ -61,6 +62,8 @@ int main() {
 		window.clear();
 		scene.draw(window);
 		window.display();
+		auto bounds = scene.getZbound();
+		std::cout << std::get<0>(bounds) << " " << std::get<1>(bounds) << std::endl;
 	}
 
 	return 0;

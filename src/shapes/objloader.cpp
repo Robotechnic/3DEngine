@@ -133,6 +133,7 @@ bool ObjLoader::parseVertex(std::string &lineType) {
 	}
 
 	if (lineType == "vt") {
+		this->file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		return true;
 	}
 	
@@ -212,7 +213,7 @@ void ObjLoader::loadObjFile(const std::string &fileName) {
 				break;
 			case 'o':
 			case 's': // ignore unsuported lines
-				std::getline(this->file, lineStart);
+				this->file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				parserResult = true;
 				break;
 			default: // if unknown, set error

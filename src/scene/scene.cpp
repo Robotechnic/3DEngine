@@ -166,6 +166,8 @@ void Scene::clipAgainstPlane(const Vector3f &planeNormal, const float &planeD) {
 			);
 		}
 	}
+	this->triangles.clear();
+	this->colors.clear();
 	this->triangles = renderTriangles;
 	this->colors = renderColors;
 }
@@ -189,30 +191,37 @@ void Scene::clipTriangle(
 	}
 
 	// if there is points inside and outside the plane
-	for (int i = 0; i < inside; i++)
+	for (int i = 0; i < inside; i++) {
 		renderColors.push_back(color);
+	}
 
 	Vector3f leftPoint, rightPoint;
 	std::tie(leftPoint, rightPoint) = triangle.getLeftRightIntersection(planeNormal, planeD, pointIndex);
 
 	// clip triangle
 	if (inside == 1) {
-		renderTriangles.push_back(Triangle(triangle.at(pointIndex), leftPoint,  rightPoint));
+		renderTriangles.push_back(Triangle(triangle.at(pointIndex), leftPoint,  rightPoint, triangle.getNormal()));
 		return;
 	}
 
-	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 1) % 3), triangle.at((pointIndex + 2) % 3)));
-	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 2) % 3), rightPoint));
+	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 1) % 3), triangle.at((pointIndex + 2) % 3), triangle.getNormal()));
+	renderTriangles.push_back(Triangle(leftPoint, triangle.at((pointIndex + 2) % 3), rightPoint, triangle.getNormal()));
 }
 
 
 float Scene::edgeFunction(const sf::Vector2f &p1, const sf::Vector2f &p2, const sf::Vector2f &p3) const {
-	return ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x));
+	return ((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x));
 }
 
 float Scene::computeZIndex(float w1, float w2, float w3, Vector3f v1, Vector3f v2, Vector3f v3) {
-	float z =  w1 / v1.z + w2 / v2.z  + w3 / v3.z;
-	return (1 / z - 1 / near)/(1 / this->far - 1 / this->near);
+	float z =  1 / (w1 * v1.z + w2 * v2.z  + w3 * v3.z);
+	if (z > this->maxZ) {
+		this->maxZ = z;
+	}
+	if (z < this->minZ) {
+		this->minZ = z;
+	}
+	return z;
 }
 
 void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
@@ -234,9 +243,10 @@ void Scene::rasterizeTriangle(const Triangle &t, const sf::Color& color) {
 	for (unsigned int x = minX >= 0 ? minX : 0; x <= maxX && x <= this->width; x++) {
 		for (unsigned int y = minY >= 0 ? minY : 0; y <= maxY && y <= this->height; y++) {
 			area = edgeFunction(p1, p2, p3);
-			w1 = edgeFunction(p3, p2, sf::Vector2f(x, y));
-			w2 = edgeFunction(p2, p1, sf::Vector2f(x, y));
-			w3 = edgeFunction(p1, p3, sf::Vector2f(x, y));
+			w1 = edgeFunction(p2, p3, sf::Vector2f(x, y));
+			w2 = edgeFunction(p3, p1, sf::Vector2f(x, y));
+			w3 = edgeFunction(p1, p2, sf::Vector2f(x, y));
+
 			if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
 				w1 /= area;
 				w2 /= area;
@@ -263,11 +273,13 @@ void Scene::drawFaces() {
 }
 
 void Scene::drawZBuffer() {
+	float zValue;
 	for (unsigned int x = 0; x < this->width; x++) {
 		for (unsigned int y = 0; y < this->height; y++) {
-			this->pixels[y * this->height * 4 + x * 4 + 0] = this->zBuffer[y * this->height + x];
-			this->pixels[y * this->height * 4 + x * 4 + 1] = this->zBuffer[y * this->height + x];
-			this->pixels[y * this->height * 4 + x * 4 + 2] = this->zBuffer[y * this->height + x];
+			zValue = this->zBuffer[y * this->height + x] * 255;
+			this->pixels[y * this->height * 4 + x * 4 + 0] = zValue;
+			this->pixels[y * this->height * 4 + x * 4 + 1] = zValue;
+			this->pixels[y * this->height * 4 + x * 4 + 2] = zValue;
 			this->pixels[y * this->height * 4 + x * 4 + 3] = 255;
 		}
 	}
@@ -306,6 +318,8 @@ sf::VertexArray Scene::drawNormals() const {
 void Scene::clear() {
 	this->triangles.clear();
 	this->colors.clear();
+	this->minZ = std::numeric_limits<float>::max();
+	this->maxZ = std::numeric_limits<float>::min();
 	for (long unsigned int i = 0; i < this->width * this->height * 4; i++) {
 		this->pixels[i] = 0;
 	}
@@ -340,4 +354,8 @@ void Scene::draw(sf::RenderTarget& target) {
 	if (this->normals) {
 		target.draw(this->drawNormals());
 	}
+}
+
+std::tuple<float, float> Scene::getZbound() const {
+	return std::make_tuple(this->minZ, this->maxZ);
 }
