@@ -54,23 +54,25 @@ bool ObjLoader::initFileStream() {
 /**
  * @brief load the material file if one is specified in the obj file
  * 
- * @param file the file stream
+ * @param mtlFile the file stream
  * @return bool true if the file was loaded
  */
-bool ObjLoader::loadMTL(std::ifstream &file) {
+bool ObjLoader::loadMTL(std::ifstream &mtlFile) {
 	std::string mtlFileName;
 	std::getline(this->file, mtlFileName);
 
 	std::string mtlFilePath = this->fileName.substr(0, this->fileName.find_last_of("/") + 1);
 	mtlFilePath += mtlFileName;
 	try {
-		file.open(mtlFilePath);
-		if (file.fail()) {
+		mtlFile.open(mtlFilePath);
+		if (mtlFile.fail()) {
 			this->errorMessage = "ObjLoader::parseMTL: Failled to open file " + mtlFilePath + " (" + strerror(errno) + ")";
+			mtlFile.close();
 			return false;
 		}
 	} catch (const std::exception &e) {
 		this->errorMessage = "ObjLoader::parseMTL: File stream error :" + std::string(e.what());
+		mtlFile.close();
 		return false;
 	}
 	return true;
@@ -105,7 +107,7 @@ bool ObjLoader::parseMTL(std::string &lineType) {
 		} else if (elems[0] == "Kd") {
 			if (materialName.size() == 0) {
 				this->errorMessage = "ObjLoader::parseMTL: Expected 'newmtl' before 'Kd'";
-				file.close();
+				mtlFile.close();
 				return false;
 			}
 			try {
@@ -116,13 +118,13 @@ bool ObjLoader::parseMTL(std::string &lineType) {
 				);
 			} catch (const std::exception &e) {
 				this->errorMessage = "ObjLoader::parseMTL: Failed to parse color :" + std::string(e.what());
-				file.close();
+				mtlFile.close();
 				return false;
 			}
 		}
 	}
 
-	file.close();
+	mtlFile.close();
 	return true;
 }
 

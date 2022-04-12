@@ -8,7 +8,7 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "OBJ Loader");
 	Scene scene(500, 500, 90, 1, 1000);
 	scene.wireframe = false;
-	scene.normals = false;
+	scene.normals = true;
 	scene.normalLength = 0.1;
 	scene.faces = true;
 	scene.zbuffer = false;
@@ -28,6 +28,7 @@ int main() {
 		return 1;
 	}
 	std::cout << "Object loaded" <<std::endl;
+	std::cout<<"Faces: "<<loader.getTriangles().size()<<std::endl;
 
 	float rotation = 0, distance = 1;
 	float direction = 0.02;
