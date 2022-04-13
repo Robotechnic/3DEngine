@@ -35,18 +35,16 @@ Cube::Cube(Vector3f size) :
 }
 
 void Cube::shape_init() {
-	for (int i = 0; i < 36; i += 3) {
-		this->triangles.push_back(Triangle({
-			this->rotationMatrix * (vertex_pos[i] * size),
-			this->rotationMatrix * (vertex_pos[i + 1] * size),
-			this->rotationMatrix * (vertex_pos[i + 2] * size),
-		}));
+	this->triangles.resize(12);
+	for (int i = 0; i < 12; i ++) {
+		this->triangles.at(i) = Triangle({
+			this->rotationMatrix * (vertex_pos[i * 3] * size),
+			this->rotationMatrix * (vertex_pos[i * 3 + 1] * size),
+			this->rotationMatrix * (vertex_pos[i * 3 + 2] * size),
+		});
 		this->triangles.at(i).calculateNormal();
 	}
-
-	for (int i = 0; i < 12; i++) {
-		this->colors.push_back(sf::Color(this->color));
-	}
+	this->colors.resize(12, sf::Color(this->color));
 }
 
 void Cube::shape_update() {
@@ -79,6 +77,6 @@ void Cube::setFaceColor(const unsigned face, const sf::Color color) {
  */
 void Cube::setFacesColors(const sf::Color colors[6]) {
 	for (int j = 0; j < 12; j++) {
-		this->colors[j] = colors[j/2];
+		this->colors.at(j) = colors[j/2];
 	}
 }

@@ -8,7 +8,7 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(500, 500), "OBJ Loader");
 	Scene scene(500, 500, 90, 1, 1000);
 	scene.wireframe = false;
-	scene.normals = true;
+	scene.normals = false;
 	scene.normalLength = 0.1;
 	scene.faces = true;
 	scene.zbuffer = false;

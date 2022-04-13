@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
 #include <cmath>
 #include "math/vector3.hpp"
 #include "shapes/cube.hpp"
@@ -16,7 +17,6 @@ int main() {
 	scene.setCamera(Vector3f(0, 0, -100), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
 	window.setFramerateLimit(60);
-	std::vector<Cube> cubes(CUBES);
 
 	Vector3f cubePos[4] = {
 		Vector3f(0,0,0),
@@ -34,9 +34,10 @@ int main() {
 		sf::Color::Yellow
 	};
 
+	std::vector<Cube> displayCubes(CUBES);
 	for (int i = 0; i < CUBES; i++) {
-		cubes.at(i).setSize(25, 25, 25);
-		cubes.at(i).setFacesColors(facesColors);
+		displayCubes.at(i).setSize(25, 25, 25);
+		displayCubes.at(i).setFacesColors(facesColors);
 	}
 
 	float rotation = 0;
@@ -93,7 +94,7 @@ int main() {
 			scene.pushMatrix();
 			scene.translate(cubePos[i]);
 			scene.rotate(0, cubeRotation, 0);
-			scene.drawShape(&cubes[i]);
+			scene.drawShape(&displayCubes[i]);
 			scene.popMatrix();
 		}
 
