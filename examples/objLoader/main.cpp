@@ -27,8 +27,8 @@ int main() {
 		
 		return 1;
 	}
-	std::cout << "Object loaded" <<std::endl;
-	std::cout<<"Faces: "<<loader.getTriangles().size()<<std::endl;
+	std::cout << "Object loaded" << std::endl;
+	std::cout << "Triangles: " << loader.getTriangles().size()<<std::endl;
 
 	float rotation = 0, distance = 1;
 	float direction = 0.02;
@@ -36,7 +36,7 @@ int main() {
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
-                window.close();
+                		window.close();
 			}
 		}
 
