@@ -18,7 +18,7 @@ int main() {
 
 	window.setFramerateLimit(60);
 
-	Vector3f cubePos[4] = {
+	Vector3f cubePos[CUBES] = {
 		Vector3f(0,0,0),
 		Vector3f(65,0,0),
 		Vector3f(0,65,0),
